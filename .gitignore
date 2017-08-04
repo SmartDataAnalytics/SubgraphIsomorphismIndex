@@ -1,22 +1,32 @@
-# Compiled class file
-*.class
+.buildpath
+.classpath
+.project
+.settings
+target
 
-# Log file
-*.log
+release.properties
+pom.xml.versionBackup
 
-# BlueJ files
-*.ctxt
+deptree.txt
+LSQ-SWDF-test.ttl
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+hs_err*
+*.releaseBackup
+outfile.ttl
+out.ttl
 
-# Package Files #
-*.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.rar
+# some file names for testing
+a.nt
+a.ttl
+b.nt
+b.ttl
+c.nt
+c.ttl
+d.nt
+d.ttl
+outfile.ttl
+deptree.txt
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+trash
+*.swp
+

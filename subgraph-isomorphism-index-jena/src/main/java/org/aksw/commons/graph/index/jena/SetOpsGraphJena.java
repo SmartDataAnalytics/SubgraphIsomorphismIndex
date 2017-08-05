@@ -16,6 +16,12 @@ import org.apache.jena.sparql.graph.NodeTransformLib;
 
 import com.google.common.collect.BiMap;
 
+/**
+ *
+ *
+ * @author raven
+ *
+ */
 public class SetOpsGraphJena
     implements SetOps<Graph, Node>
 {
@@ -24,10 +30,12 @@ public class SetOpsGraphJena
     @Override
     public Graph createNew() {
         return new GraphVarImpl();
+        //return GraphFactory.createDefaultGraph();
     }
 
     @Override
     public Graph applyIso(Graph set, BiMap<Node, Node> iso) {
+        //Graph result = transformItems(set, iso::get);
         Graph result = new GraphIsoMapImpl(set, iso);
         return result;
     }
@@ -65,6 +73,12 @@ public class SetOpsGraphJena
     @Override
     public Graph union(Graph a, Graph b) {
         Graph result = new Union(a, b);
+        return result;
+    }
+
+    @Override
+    public boolean isEmpty(Graph s) {
+        boolean result = s.isEmpty();
         return result;
     }
 

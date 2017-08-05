@@ -37,4 +37,20 @@ public interface SetOps<S, I> {
     }
 
     int size(S g);
+
+    /**
+     * Default isEmpty implementation based on size(g) == 0;.
+     * It is recommended to ensure that the implementation
+     * of this method has O(1) and not O(n) complexity, i.e. that it
+     * does not scan all items.
+     *
+     *
+     * @param s
+     * @return
+     */
+    default boolean isEmpty(S s) {
+        int size = size(s);
+        boolean result = size == 0;
+        return result;
+    }
 }

@@ -7,11 +7,9 @@ import javax.persistence.EntityManager;
 
 import org.aksw.commons.graph.index.core.SubgraphIsomorphismIndex;
 import org.aksw.commons.graph.index.core.SubgraphIsomorphismIndexWrapper;
+import org.aksw.commons.graph.index.jena.transform.QueryToGraph;
 import org.aksw.commons.jena.jgrapht.PseudoGraphJenaGraph;
 import org.aksw.jena_sparql_api.core.SparqlService;
-import org.aksw.jena_sparql_api.iso.index.SubGraphIsomorphismIndexWrapper;
-import org.aksw.jena_sparql_api.jgrapht.LsqQuery;
-import org.aksw.jena_sparql_api.jgrapht.MainSparqlQueryToGraph;
 import org.aksw.jena_sparql_api.mapper.jpa.core.SparqlEntityManagerFactory;
 import org.aksw.jena_sparql_api.update.FluentSparqlService;
 import org.apache.jena.graph.Graph;
@@ -35,9 +33,9 @@ public class SubGraphIsomorphismIndexTests {
         Model model = RDFDataMgr.loadModel("lsq-sparqlqc-synthetic-simple.ttl", Lang.TURTLE);
         SparqlService ss = FluentSparqlService.from(model).create();
 
-        em = SparqlEntityManagerFactory.newInstance()
+        em = SparqlEntityManagerFactory.create()//newInstance()
                 .setSparqlService(ss)
-                .addScanPackageName(MainSparqlQueryToGraph.class.getPackage().getName())
+                .addScanPackageName(SubGraphIsomorphismIndexTests.class.getPackage().getName())
                 .getObject();
     }
 
@@ -49,7 +47,7 @@ public class SubGraphIsomorphismIndexTests {
                         PseudoGraphJenaGraph::new);
 
         SubgraphIsomorphismIndex<String, String, Node> result =
-                SubgraphIsomorphismIndexWrapper.wrap(base, MainSparqlQueryToGraph::queryToGraph);
+                SubgraphIsomorphismIndexWrapper.wrap(base, QueryToGraph::queryToGraph);
 
 
         for(String queryId : queryIds) {

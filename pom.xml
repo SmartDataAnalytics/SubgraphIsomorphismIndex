@@ -44,9 +44,10 @@
 
 
     <modules>
+        <module>jena-algebra-extensions</module>
+        <module>jena-jgrapht-bindings</module>
         <module>subgraph-isomorphism-index-core</module>
         <module>subgraph-isomorphism-index-jgrapht</module>
-        <module>jena-jgrapht-bindings</module>
         <module>subgraph-isomorphism-index-jena</module>
     </modules>
 
@@ -64,6 +65,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.aksw.commons</groupId>
+                <artifactId>jena-algebra-extensions</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.aksw.commons</groupId>
                 <artifactId>jena-jgrapht-bindings</artifactId>
@@ -107,9 +114,9 @@
             </dependency>
 
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>22.0</version>
+                <groupId>org.aksw.jena-sparql-api</groupId>
+                <artifactId>jena-sparql-api-utils</artifactId>
+                <version>3.3.0-2</version>
             </dependency>
 
             <dependency>

@@ -1,4 +1,4 @@
-package org.aksw.commons.graph.index.jena;
+package org.aksw.commons.jena.graph;
 
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;

@@ -42,9 +42,8 @@ index.put("g4", "{ ?z a :Person ; :age ?a ; :name ?n }");
 Multimap<String, BiMap<Node, Node>> keyToIsos = index.lookup("{?foo a :Person ; :name ?bar }");
 
 // Expected
-g1: ?x -> ?foo, ?l -> ?bar
-g4: ?z -> ?foo, ?n -> ?bar
-
+g1: ?w -> ?foo
+g2: ?x -> ?foo, ?l -> ?bar
 ```
 
 

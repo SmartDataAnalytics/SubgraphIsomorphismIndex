@@ -1,9 +1,51 @@
 # Subgraph Isomorphism Index
+
+```Documentation is in the works```
+
 A generic Index Data Structure for Fast Isomorphic Subset and Superset Queries implemented in Java.
 
 This project features generic Map-like index structure for isomorphic sub graphs (and sub sets):
 The index maintains (Key, Graph) pairs and supports querying for all keys, whose correspondings graphs are isomorphic to a given query graph.
 The index implementation itself is agnostic of key and graph types and is designed for easy adaption to custom graph types.
+
+
+```xml
+<!-- Replace ${module} with 'core', 'jgrapht' or 'jena' (without quotes) -->
+<dependency>
+    <groupId>org.aksw.commons</groupId>
+    <artifactId>subgraph-isomorphism-index-${module}</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+* _core_: is the base implementation and is indepentent of any specific set or graph type
+* _jgrapht_: provides utils to parameterize the core implementation with JGraphT features; depends on _core_
+* _jena_: provides jena bindings; dependends on _jgrapht_
+
+
+```
+// The graph-based core index
+SubgraphIsomorphismIndex<String, Graph, Node> baseIndex = SubgraphIsomorphismIndexJena.create(), PseudoGraphJenaGraph::new);
+
+// A function for mapping custom objects to a graph type supported by the index.
+// In this case, a custom functon for parsing strings to graphs
+Function<String, Graph> graphParser = ...;
+
+// Index wrapper where we can conveniently put in strings
+SubgraphIsomorphismIndex<String, String, Node> index = SubgraphIsomorphismIndexWrapper.wrap(baseIndex, parseStringToGraph);
+
+index.put("g1", "{ ?w a :Person }");
+index.put("g2", "{ ?x a :Person ; :name ?l }");
+index.put("g3", "{ ?y a :Person ; :age ?a }");
+index.put("g4", "{ ?z a :Person ; :age ?a ; :name ?n }");
+
+Multimap<String, BiMap<Node, Node>> keyToIsos = index.lookup("{?foo a :Person ; :name ?bar }");
+
+// Expected
+g1: ?x -> ?foo, ?l -> ?bar
+g4: ?z -> ?foo, ?n -> ?bar
+
+```
 
 
 

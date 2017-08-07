@@ -1,6 +1,6 @@
 # Subgraph Isomorphism Index
 
-```Documentation is in the works```
+***Documentation is in the works; supgraph queries working, supergraph queries not yet implemented but planned***
 
 A generic Index Data Structure for Fast Isomorphic Subset and Superset Queries implemented in Java.
 

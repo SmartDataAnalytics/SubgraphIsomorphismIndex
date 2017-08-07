@@ -23,7 +23,7 @@ The index implementation itself is agnostic of key and graph types and is design
 * _jena_: provides jena bindings; dependends on _jgrapht_
 
 
-```
+```java
 // The graph-based core index
 SubgraphIsomorphismIndex<String, Graph, Node> baseIndex = SubgraphIsomorphismIndexJena.create(), PseudoGraphJenaGraph::new);
 

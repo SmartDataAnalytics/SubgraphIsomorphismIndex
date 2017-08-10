@@ -66,12 +66,6 @@
         <dependencies>
             <dependency>
                 <groupId>org.aksw.commons</groupId>
-                <artifactId>jena-algebra-extensions</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.aksw.commons</groupId>
                 <artifactId>jena-jgrapht-bindings</artifactId>
                 <version>${project.version}</version>
             </dependency>

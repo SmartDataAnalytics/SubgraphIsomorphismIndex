@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.aksw.commons</groupId>
         <artifactId>subgraph-isomorphism-index-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <dependencies>

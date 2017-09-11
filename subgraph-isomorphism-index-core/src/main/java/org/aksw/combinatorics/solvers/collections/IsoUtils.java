@@ -39,7 +39,7 @@ public class IsoUtils {
             return result;
         }
 
-        public static <P extends CostAware> NavigableMap<Long, Collection<P>> indexSolutionGenerators(Collection<P> solGens) {
+        public static <P extends CostAware> NavigableMap<Long, Collection<P>> indexSolutionGenerators(Collection<? extends P> solGens) {
             NavigableMap<Long, Collection<P>> result = new TreeMap<>();
 
             for(P solutionGenerator : solGens) {

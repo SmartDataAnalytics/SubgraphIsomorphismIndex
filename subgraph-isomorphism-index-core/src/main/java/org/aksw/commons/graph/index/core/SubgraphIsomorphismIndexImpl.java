@@ -82,7 +82,7 @@ import com.google.common.collect.Table;
  * <ul>
  *   <li>
  *     A generic isomorphism matcher, which is expected to yield possible isomorphisms for two given entities of type G.
- *     Typically, this could be backed by a VF2 implementaiton
+ *     Typically, this could be backed by a VF2 implementation
  *   </li>
  *   <li>Tags subset/superset queries are optimized using a set trie implementation.</li>
  * </ul>
@@ -939,6 +939,10 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
             // Clear nodeA and append the insert data as the only child
             nodeA.clearLinks(false);
             nodeA.appendChild(nodeB, residualInsertGraphB, residualInsertGraphBTags, isoAB);
+
+            // Add the key
+            Map<K, BiMap<V, V>> altKeyToIso = prefKeyToAltKeysWithIso.row(key);
+            altKeyToIso.put(key, HashBiMap.create());
 
 
             // Perform additions

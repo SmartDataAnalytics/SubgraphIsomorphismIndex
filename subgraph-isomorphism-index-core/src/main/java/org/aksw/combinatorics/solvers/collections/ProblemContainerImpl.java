@@ -61,9 +61,6 @@ public class ProblemContainerImpl<S>
             Comparable<?> pickedKey = currEntry.getKey();
             GenericProblem<S, ?> pickedProblem = Iterables.getFirst(currEntry.getValue(), null);
 
-
-
-
             NavigableMap<Comparable<?>, Collection<GenericProblem<S, ?>>> remaining = new TreeMap<>();
             sizeToProblem.forEach((k, v) -> {
                 Collection<GenericProblem<S, ?>> ps = v.stream().filter(i -> i != pickedProblem).collect(Collectors.toList());
@@ -74,7 +71,7 @@ public class ProblemContainerImpl<S>
 
             ProblemContainerImpl<S> r = new ProblemContainerImpl<>(remaining);
 
-            result = null; //new ProblemContainerPick<>(pickedProblem, r);
+            result = new ProblemContainerPick<S>(pickedProblem, r);
         } else {
             throw new IllegalStateException();
         }

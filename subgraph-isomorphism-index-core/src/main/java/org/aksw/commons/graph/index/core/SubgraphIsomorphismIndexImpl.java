@@ -172,6 +172,12 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
         }
     }
 
+    @Override
+    public G get(K key) {
+    	IndexNode<K, G, V, T> tmp = keyToNode.get(key);
+    	G result = tmp.getGraph();
+    	return result;
+    }
 
     /**
      * Create a node with an fresh internal id

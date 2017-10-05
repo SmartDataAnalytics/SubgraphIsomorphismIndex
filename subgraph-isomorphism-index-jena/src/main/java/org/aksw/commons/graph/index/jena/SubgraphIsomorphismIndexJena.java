@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.aksw.commons.graph.index.core.SubgraphIsomorphismIndex;
+import org.aksw.commons.graph.index.core.SubgraphIsomorphismIndexFlat;
 import org.aksw.commons.graph.index.core.SubgraphIsomorphismIndexImpl;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
@@ -20,6 +21,17 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.Streams;
 
 public class SubgraphIsomorphismIndexJena {
+
+    // TODO Move to util class
+    public static <K> SubgraphIsomorphismIndex<K, DirectedGraph<Node, Triple>, Node> createFlat() {
+        SubgraphIsomorphismIndexFlat<K, DirectedGraph<Node, Triple>, Node> result =
+                new SubgraphIsomorphismIndexFlat<>(
+                        SetOpsJGraphTRdfJena.INSTANCE,
+                        new IsoMatcherImpl<>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator));
+        return result;
+    }
+
+	
     // TODO Move to util class
     public static <K> SubgraphIsomorphismIndex<K, DirectedGraph<Node, Triple>, Node> create() {
         SubgraphIsomorphismIndexImpl<K, DirectedGraph<Node, Triple>, Node, Node> result =

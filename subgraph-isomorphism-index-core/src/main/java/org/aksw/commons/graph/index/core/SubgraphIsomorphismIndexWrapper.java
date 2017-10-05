@@ -70,4 +70,9 @@ public class SubgraphIsomorphismIndexWrapper<K, O, G, V>
     public static <K, O, G, V> SubgraphIsomorphismIndex<K, O, V> wrap(SubgraphIsomorphismIndex<K, G, V> base, Function<O, G> objectToGraph) {
         return new SubgraphIsomorphismIndexWrapper<>(base, objectToGraph);
     }
+
+	@Override
+	public O get(K key) {
+		throw new UnsupportedOperationException();
+	}
 }

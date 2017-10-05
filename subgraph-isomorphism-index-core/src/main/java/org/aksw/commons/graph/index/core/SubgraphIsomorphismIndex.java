@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 
 
 /**
+ * 
  *
  * @author raven
  *
@@ -42,13 +43,18 @@ public interface SubgraphIsomorphismIndex<K, G, N> {
      */
     K put(K key, G graph);
 
+    // FIXME Maybe this should be removed: This class represents an *index* and not a map
+    // This means, that the original graph for a key may no longer exist in its initial form, but is now distributed across
+    // the datastructure for the index
+    G get(K key);
+    
     // Return the set of keys together with the isomorphisms
     //Map<K, Iterable<BiMap<N, N>>> lookupStream(G queryGraph, boolean exactMatch);
 
 
     Multimap<K, BiMap<N, N>> lookupX(G queryGraph, boolean exactMatch);
 
-    // Temporary? debug method
+    // FIXME Temporary debug method
     void printTree();
 
 

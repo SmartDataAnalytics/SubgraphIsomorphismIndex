@@ -42,4 +42,10 @@ class Edge<K, G, V, T>
     public Set<T> getResidualGraphTags() {
         return residualGraphTags;
     }
+
+	@Override
+	public String toString() {
+		return "Edge [from=" + from + ", to=" + to + ", transIso=" + transIso + ", residualGraphTags="
+				+ residualGraphTags + ", residualGraph=" + residualGraph + "]";
+	}
 }

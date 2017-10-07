@@ -1,6 +1,7 @@
 package org.aksw.commons.graph.index.core;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 import org.aksw.commons.collections.tagmap.TagMap;
@@ -27,6 +28,11 @@ public class IndexNode<K, G, V, T> {
     void clearLinks(boolean alsoParents) {
         targetKeyToEdges.clear();
         edgeIndex.clear();
+//        if(!edgeIndex.isEmpty()) {
+//        	System.out.println("clear failed");
+//        	edgeIndex.isEmpty();
+//        	edgeIndex.clear();
+//        }
         if(alsoParents) {
             parents.clear();
         }
@@ -73,7 +79,20 @@ public class IndexNode<K, G, V, T> {
 
         targetKeyToEdges.put(targetNode.getKey(), edge);
         edgeIndex.put(edge, residualGraphTags);
+        
+//        Set<Edge<K, G, V, T>> x = Sets.newIdentityHashSet();
+//        x.addAll(this.getEdgeIndex().keySet());
+//        
+//        Set<Edge<K, G, V, T>> y = Sets.newIdentityHashSet();
+//        y.addAll(this.getTargetKeyToEdges().values());
+//        
+//        if(!Objects.equals(x, y)) {
+//        	throw new RuntimeException("Not equal");
+//        } else {
+//        	System.out.println("equals");
+//        }
 
+        
         targetNode.getParents().add(key);
     }
 
@@ -98,11 +117,11 @@ public class IndexNode<K, G, V, T> {
         targetKeyToEdges.removeAll(targetNodeKey);
     }
 
-    public Collection<Edge<K, G, V, T>> getEdgesByTargetKey(K targetKey) {
-        return targetKeyToEdges.get(targetKey);
-    }
-
-    public Multimap<K, Edge<K, G, V, T>> getTargetKeyToEdges() {
-        return targetKeyToEdges;
-    }
+//    public Collection<Edge<K, G, V, T>> getEdgesByTargetKey(K targetKey) {
+//        return targetKeyToEdges.get(targetKey);
+//    }
+//
+//    public Multimap<K, Edge<K, G, V, T>> getTargetKeyToEdges() {
+//        return targetKeyToEdges;
+//    }
 }

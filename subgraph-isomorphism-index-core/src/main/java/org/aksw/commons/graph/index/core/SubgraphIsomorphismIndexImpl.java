@@ -1,5 +1,6 @@
 package org.aksw.commons.graph.index.core;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -174,8 +175,11 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
 
     @Override
     public G get(K key) {
-    	IndexNode<K, G, V, T> tmp = keyToNode.get(key);
-    	G result = tmp.getGraph();
+    	K prefKey = getPrefKey(key);
+    	
+    	IndexNode<K, G, V, T> tmp = keyToNode.get(prefKey);
+    	
+    	G result = tmp == null ? null : tmp.getGraph();
     	return result;
     }
 
@@ -213,6 +217,8 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
 
             Map<K, BiMap<V, V>> altKeys = prefKey == null ? Collections.emptyMap() : prefKeyToAltKeysWithIso.row(prefKey);
 
+            logger.debug("Alt Keys for " + prefKey + ": " + altKeys);
+            
             for(InsertPosition<K, G, V, T> pos : match.getValue()) {
                 BiMap<V, V> baseIso = pos.getIso();
 
@@ -240,8 +246,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
      * @see org.aksw.jena_sparql_api.iso.index.SubGraphIsomorphismIndex#lookup(G, boolean)
      */
     //@Override
-    public Multimap<K, InsertPosition<K, G, V, T>> lookup(G queryGraph, boolean exactMatch) {
-
+    public Multimap<K, InsertPosition<K, G, V, T>> lookup(G queryGraph, boolean exactMatch) {    	
         Set<T> queryGraphTags = extractGraphTagsWrapper(queryGraph);
 
         Collection<InsertPosition<K, G, V, T>> positions = new LinkedList<>();
@@ -305,9 +310,9 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
     public K put(K key, G graph) {
         Set<T> insertGraphTags = extractGraphTagsWrapper(graph);
 
-        add(rootNode, key, graph, insertGraphTags, HashBiMap.create(), false); //, writer);
+        add(rootNode, key, graph, insertGraphTags, HashBiMap.create(), HashBiMap.create(), false); //, writer);
 
-        return null;
+        return key;
     }
 
 
@@ -353,7 +358,25 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
         return result;
     }
 
+//    public static <N> BiMap<N, N> mapDomainViaOld(Map<N, N> src, Map<N, N> map) {
+//        BiMap<N, N> result = src.entrySet().stream().collect(Collectors.toMap(
+//                e -> map.getOrDefault(e.getKey(), e.getValue()),
+//                e -> e.getValue(),
+//                (u, v) -> {
+//                    throw new RuntimeException("should not hapen: " + src + " --- map: " + map);
+//                },
+//                HashBiMap::create));
+//        return result;
+//    }
+
+    /**
+     * Creates a new BiMap with identity mappings removed
+     * 
+     * @param map
+     * @return
+     */
     public static <T> BiMap<T, T> removeIdentity(Map<T, T> map) {
+//    	return HashBiMap.create(map);
         BiMap<T, T> result = map.entrySet().stream()
                 .filter(e -> !Objects.equals(e.getKey(), e.getValue()))
                 .collect(collectToBiMap(Entry::getKey, Entry::getValue));
@@ -415,6 +438,9 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
         Collection<Edge<K, G, V, T>> candEdges =
                 node.getEdgeIndex().getAllSubsetsOf(insertGraphTags, false).keySet();
 
+        
+        //node.getEdgeIndex().entrySet().forEach(e -> System.out.println("Edge: " + e));
+        
         for(Edge<K, G, V, T> candEdge : candEdges) {
             G viewGraph = candEdge.getResidualGraph();
 
@@ -432,6 +458,8 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
             BiMap<V, V> childTransIso = candEdge.getTransIso();
             BiMap<V, V> transBaseIso = mapDomainVia(baseIso, childTransIso);
 
+            // FIXME I think using an empty iso here is the correct choice
+            //BiMap<V, V> tmpTransBaseIso = HashBiMap.create();
             Iterable<BiMap<V, V>> isos = isoMatcher.match(transBaseIso, viewGraph, insertGraph);
 
             for(BiMap<V, V> iso : isos) {
@@ -447,6 +475,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
                 // Then there will be two isos from i1 to i3, but only one that is compatible with i2
                 boolean isCompatible = MapUtils.isCompatible(iso, transBaseIso);
                 if(!isCompatible) {
+                	logger.warn("incompatible mapping");
 //                    writer.println("Incompatible:");
 //                    writer.println("iso         : " + iso);
 //                    writer.println("transBaseIso: " + transBaseIso);
@@ -561,12 +590,11 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
      *
      * @param graph
      */
-    void add(IndexNode<K, G, V, T> node, K key, G insertGraph, Set<T> insertGraphTags, BiMap<V, V> baseIso, boolean forceInsert) { //, IndentedWriter writer) {
+    void add(IndexNode<K, G, V, T> node, K key, G insertGraph, Set<T> insertGraphTags, BiMap<V, V> baseIso, BiMap<V, V> deltaIso, boolean forceInsert) { //, IndentedWriter writer) {
         // The insert graph must be larger than the node Graph
 
 
         Collection<InsertPosition<K, G, V, T>> positions = new LinkedList<>();
-        HashBiMap<V, V> deltaIso = HashBiMap.create();
         findInsertPositions(positions, node, insertGraph, insertGraphTags, baseIso, deltaIso, false, false); //, writer);
 
 //        positions.forEach(p -> {
@@ -592,7 +620,11 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
                 : prefKeyToAltKeysWithIso.row(prefKey).keySet();
 
         System.out.println(indent + node.getKey() + " " + altKeys + " --- tags: " + node.getGraphTags() + " transIso: " + transIso);
-        for(Edge<K, G, V, T> edge : node.getTargetKeyToEdges().values()) {
+        
+        Collection<Edge<K, G, V, T>> edges = node.getEdgeIndex().keySet();
+        //Collection<Edge<K, G, V, T>> edges = node.getTargetKeyToEdges().values();
+        
+        for(Edge<K, G, V, T> edge : edges) {
             K childKey = edge.getTo();
             IndexNode<K, G, V, T> childNode = keyToNode.get(childKey);
             BiMap<V, V> childTransIso = edge.getTransIso();
@@ -740,25 +772,57 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
      * This means: perform breadth first, and
      *
      */
-    public Map<K, G> loadGraphsInSubTrees(Map<K, G> result, G baseGraph, IndexNode<K, G, V, T> startNode, Collection<Edge<K, G, V, T>> edges) {
+    public Map<K, Entry<BiMap<V, V>, Entry<G, Set<T>>>> loadGraphsInSubTrees(G baseGraph, Set<T> baseGraphTags, Collection<Edge<K, G, V, T>> edges) {
+
+    	Map<K, Entry<BiMap<V, V>, Entry<G, Set<T>>>> result = new HashMap<>();
+    	
+
+    	for(Edge<K, G, V, T> edge : edges) {
+        	BiMap<V, V> transIso = edge.getTransIso();
+        	
+        	Map<K, Entry<G, Set<T>>> tmp = new HashMap<>();
+            loadGraphsInSubTreesCore(tmp, baseGraph, baseGraphTags, Collections.singleton(edge));
+            
+            
+            for(Entry<K, Entry<G, Set<T>>> x : tmp.entrySet()) {
+            	K key = x.getKey();
+            	Entry<G, Set<T>> graphAndTags = x.getValue();
+            	result.computeIfAbsent(key, (xx) -> {
+            		return new SimpleEntry<>(transIso, graphAndTags);
+            	});
+            }
+        }
+    	
+    	return result;
+    }
+
+    public Map<K, Entry<G, Set<T>>> loadGraphsInSubTreesCore(Map<K, Entry<G, Set<T>>> result, G baseGraph, Set<T> baseGraphTags, Collection<Edge<K, G, V, T>> edges) {
         for(Edge<K, G, V, T> edge : edges) {
             K targetNodeKey = edge.getTo();
 
-            G targetGraph = result.computeIfAbsent(targetNodeKey, (tgn) -> {
+            Entry<G, Set<T>> info = result.computeIfAbsent(targetNodeKey, (tgn) -> {
                 BiMap<V, V> transIso = edge.getTransIso();
-
                 G residualGraph = edge.getResidualGraph();
+                Set<T> residualGraphTags = edge.getResidualGraphTags();
 
                 G transGraph = setOps.applyIso(baseGraph, transIso);
                 G targetResidualGraph = setOps.union(transGraph, residualGraph);
-
-                return targetResidualGraph;
+                Set<T> targetResidualGraphTags = Sets.union(baseGraphTags, residualGraphTags);                
+                
+                Entry<G, Set<T>> r = new SimpleEntry<>(targetResidualGraph, targetResidualGraphTags);
+                return r;
             });
 
             // Recurse
             IndexNode<K, G, V, T> targetNode = keyToNode.get(targetNodeKey);
-            Collection<Edge<K, G, V, T>> childEdges = targetNode.getTargetKeyToEdges().values();
-            loadGraphsInSubTrees(result, targetGraph, targetNode, childEdges);
+
+            Collection<Edge<K, G, V, T>> childEdges = targetNode.getEdgeIndex().keySet();
+            //Collection<Edge<K, G, V, T>> childEdges = targetNode.getTargetKeyToEdges().values();
+
+            G targetGraph = info.getKey();
+            Set<T> targetGraphTags = info.getValue();
+            
+            loadGraphsInSubTreesCore(result, targetGraph, targetGraphTags, childEdges);
         }
 
         return result;
@@ -868,8 +932,32 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
      * @param forceInsert
      * @param writer
      */
+    int foobar = 0;
     void performAdd(K key, InsertPosition<K, G, V, T> pos, boolean forceInsert) { //, IndentedWriter writer) {
-        IndexNode<K, G, V, T> nodeA = pos.getNode();
+    	if(("" + key).equals("http://lsq.aksw.org/res/q-00d1b176=0")) {
+    		++ foobar;
+    		
+    		if(foobar == 8) {
+    			System.out.println("got the case where it goes wrong");
+    		}
+    		
+    		System.out.println("Got key: " + foobar + " - " + key);
+	    	System.out.println();
+	    	System.out.println("BEFORE");
+	    	printTree();
+	    	performAddCore(key, pos, forceInsert);
+	    	System.out.println();
+	    	System.out.println("AFTER");
+	    	printTree();
+	    	System.out.println();
+    	} else {
+        	performAddCore(key, pos, forceInsert);
+    	}
+    }
+    
+    void performAddCore(K key, InsertPosition<K, G, V, T> pos, boolean forceInsert) { //, IndentedWriter writer) {
+    		
+    	IndexNode<K, G, V, T> nodeA = pos.getNode();
         //Graph insertGraphIsoB = pos.getGraphIso();
 
         G residualInsertGraphB = pos.getResidualQueryGraph();
@@ -892,6 +980,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
         BiMap<V, V> isoAB = pos.getLatestIsoAB();
         BiMap<V, V> baseIsoAB = pos.getIso();
 
+
         // TODO isoAB should have an empty intersection with iso parentOfAtoA
         // Make a sanity check to ensure that
 
@@ -911,18 +1000,24 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
             Set<Edge<K, G, V, T>> directCandEdges =
                     nodeA.getEdgeIndex().getAllSupersetsOf(residualInsertGraphBTags, false).keySet();
 
+                        
+            
             List<Edge<K, G, V, T>> directNonCandEdges =
-                    nodeA.getTargetKeyToEdges().values().stream()
+            		nodeA.getEdgeIndex().keySet().stream()
+                    //nodeA.getTargetKeyToEdges().values().stream()
                     .filter(edge -> !directCandEdges.contains(edge))
                     .collect(Collectors.toList());
 
             // Find all residual graphs reachable from this node and order them by size
 
-            Map<K, G> keyToGraph = loadGraphsInSubTrees(new HashMap<>(), setOps.createNew(), nodeA, directCandEdges);
+            //Map<K, Entry<G, Set<T>>> keyToGraphAndTags = loadGraphsInSubTrees(new HashMap<>(), setOps.createNew(), Collections.emptySet(), directCandEdges);
+            Map<K, Entry<BiMap<V, V>, Entry<G, Set<T>>>> keyToGraphAndTags = loadGraphsInSubTrees(setOps.createNew(), Collections.emptySet(), directCandEdges);
+
+            
             //System.out.println("Found these graphs in subtree of candidate children: " + keyToGraph.keySet());
 
-            List<Entry<K, G>> keyGraphs = new ArrayList<>(keyToGraph.entrySet());
-            Collections.sort(keyGraphs, (a, b) -> setOps.size(a.getValue()) - setOps.size(b.getValue()));
+            List<Entry<K, Entry<BiMap<V, V>, Entry<G, Set<T>>>>> keyGraphs = new ArrayList<>(keyToGraphAndTags.entrySet());
+            Collections.sort(keyGraphs, (a, b) -> setOps.size(a.getValue().getValue().getKey()) - setOps.size(b.getValue().getValue().getKey()));
 
 
             // Remove all edges reachable via directCandEdges - i.e. clear data of all reachable nodes
@@ -930,7 +1025,8 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
                 .map(Edge::getTo)
                 .map(keyToNode::get)
                 .flatMap(node -> reachableNodes(node,
-                        n -> n.getTargetKeyToEdges().keySet().stream().map(keyToNode::get)))
+                		n -> n.getEdgeIndex().keySet().stream().map(Edge::getTo).map(keyToNode::get)))
+                        //n -> n.getTargetKeyToEdges().keySet().stream().map(keyToNode::get)))
                 .collect(Collectors.toCollection(Sets::newIdentityHashSet));
 
             reachableNodes.forEach(node -> {
@@ -952,13 +1048,24 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
 
 
             // Perform additions
-            for(Entry<K, G> keyGraph : keyGraphs) {
+            //for(Entry<K, Entry<G, Set<T>>> keyGraph : keyGraphs) {
+            for(Entry<K, Entry<BiMap<V, V>, Entry<G, Set<T>>>> keyGraph : keyGraphs) {
                 K k = keyGraph.getKey();
-                G insertGraph = keyGraph.getValue();
-                Set<T> insertGraphTags = extractGraphTagsWrapper(insertGraph);
+                Entry<BiMap<V, V>, Entry<G, Set<T>>> tmp = keyGraph.getValue();
+                BiMap<V, V> transIso = tmp.getKey();
+                
+                Entry<G, Set<T>> graphAndTags = tmp.getValue();
+                G insertGraph = graphAndTags.getKey();
+                Set<T> insertGraphTags = graphAndTags.getValue(); 
+                
+                
+                // FIXME This tag computation is wrong; some of the graph's tags may already be covered by parent nodes
+                
+                //Set<T> insertGraphTags = extractGraphTagsWrapper(insertGraph);
                 //BiMap<V, V> baseIso = HashBiMap.create();
 
-                add(nodeA, k, insertGraph, insertGraphTags, baseIsoAB, true); //, writer);
+                // x add(nodeA, k, insertGraph, insertGraphTags, baseIsoAB, true); //, writer);
+                add(nodeA, k, insertGraph, insertGraphTags, baseIsoAB, transIso, true);
             }
 
             // Append all unaffected non-candidate children
@@ -970,8 +1077,8 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
         }
     }
 
-
 }
+
 
 
 // Lots of useless code below; remove at some point

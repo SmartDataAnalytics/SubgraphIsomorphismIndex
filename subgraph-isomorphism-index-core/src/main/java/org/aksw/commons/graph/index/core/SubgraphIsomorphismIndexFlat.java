@@ -1,12 +1,9 @@
 package org.aksw.commons.graph.index.core;
 
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Function;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -52,14 +49,20 @@ public class SubgraphIsomorphismIndexFlat<K, G, V>
 	public Multimap<K, BiMap<V, V>> lookupX(G queryGraph, boolean exactMatch) {
 		Multimap<K, BiMap<V, V>> result = HashMultimap.create();
 		
+//		System.out.println("Query graph: " + queryGraph);
+		
 		BiMap<V, V> baseIso = HashBiMap.create();
 		for(Entry<K, G> entry : keyToGraph.entrySet()) {
 			K key = entry.getKey();
 			G viewGraph = entry.getValue();
+//			System.out.println("  View graph: " + viewGraph);
 			Iterable<BiMap<V, V>> isos = isoMatcher.match(baseIso, viewGraph, queryGraph);
 			Iterator<BiMap<V, V>> it = isos.iterator();
-			if(it.hasNext()) {
-				BiMap<V, V> iso = it.next();
+			while(it.hasNext()) {
+				BiMap<V, V> tmp = it.next();
+//                System.out.println("    Raw Iso: " + tmp);
+                BiMap<V, V> iso = SubgraphIsomorphismIndexImpl.removeIdentity(tmp);
+                //System.out.println("    Clean Iso: " + iso);
 				result.put(key, iso);
 			}
 		}

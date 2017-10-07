@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -104,9 +105,12 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
 
         Iterator<GraphMapping<V, E>> it = inspector.getMappings();
 
-        Stream<GraphMapping<V, E>> baseStream = Lists.newArrayList(it).stream();
         // TODO WHY DOES THIS TRULY STREAMING VERSION FAIL WITH ODD DUPLICATE ITEMS AND NPE???
-//        Stream<GraphMapping<V, E>> baseStream = Streams.stream(it);
+//      Stream<GraphMapping<V, E>> baseStream = Streams.stream(it);
+
+        List<GraphMapping<V, E>> tmp = Lists.newArrayList(it);
+        //System.out.println("GraphMappings " + tmp.size() + ": " + tmp);
+        Stream<GraphMapping<V, E>> baseStream = tmp.stream();
 
 
         Stream<BiMap<V, V>> result = baseStream//Streams.stream(it)
@@ -143,6 +147,7 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
                         }
                     }
                 }
+                //System.out.println("Created node map: " + nodeMap);
                 return nodeMap;
             })
             .filter(x -> x != null);

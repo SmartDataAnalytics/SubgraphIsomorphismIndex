@@ -138,7 +138,7 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
                             if(skipIncompatibleMappings) {
                                 // If the mapping is inconsistent with the baseMapping, skip it
                                 // but log a warnign
-                                logger.warn("Skipping incompatible mapping");
+                                //logger.warn("Skipping incompatible mapping");
                                 nodeMap = null;
                                 break;
                             } else {

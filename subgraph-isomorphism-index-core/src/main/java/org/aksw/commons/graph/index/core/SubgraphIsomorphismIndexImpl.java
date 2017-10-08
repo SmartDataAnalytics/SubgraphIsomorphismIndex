@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -114,7 +115,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
 //    protected DirectedGraph<K, Edge<K, G, V, T>> indexGraph = new SimpleDirectedGraph<>(Edge.class);
 
     protected IndexNode<K, G, V, T> rootNode;
-    protected Map<K, IndexNode<K, G, V, T>> keyToNode = new HashMap<>();
+    protected Map<K, IndexNode<K, G, V, T>> keyToNode = new LinkedHashMap<>();
 
     /**
      * This table maps preferred keys to their alternate keys and the isos from pref keys' graph of that of alt
@@ -202,7 +203,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
     public Multimap<K, BiMap<V, V>> lookupX(G queryGraph, boolean exactMatch) {
         Multimap<K, InsertPosition<K, G, V, T>> matches = lookup(queryGraph, exactMatch);
 
-        Multimap<K, BiMap<V, V>> result = HashMultimap.create();
+        Multimap<K, BiMap<V, V>> result = newSetMultimap(false, false);//HashMultimap.create();
         //matches.values().map()
 //        breadthFirstSearchWithMultipleStartNodesAndOrderedChildren(
 //            nodes,
@@ -253,8 +254,8 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
         Collection<InsertPosition<K, G, V, T>> positions = new LinkedList<>();
         findInsertPositions(positions, rootNode, queryGraph, queryGraphTags, null, HashBiMap.create(), HashBiMap.create(), true, exactMatch); //, writer);
 
-        Multimap<K, InsertPosition<K, G, V, T>> result = HashMultimap.create();
-        logger.debug("Lookup result candidates: " + positions.size());
+        Multimap<K, InsertPosition<K, G, V, T>> result = newSetMultimap(false, true);//HashMultimap.create();
+        //logger.debug("Lookup result candidates: " + positions.size());
         for(InsertPosition<K, G, V, T> pos : positions) {
             // Match with the children
 
@@ -286,7 +287,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
 
         findInsertPositions(positions, rootNode, queryGraph, queryGraphTags, HashBiMap.create(), HashBiMap.create(), HashBiMap.create(), true, exactMatch); //, writer);
 
-        Multimap<K, BiMap<V, V>> result = HashMultimap.create();
+        Multimap<K, BiMap<V, V>> result = newSetMultimap(false, false);//HashMultimap.create();
 
         if(logger.isDebugEnabled()) {
             logger.debug("Lookup result candidates: " + positions.size());
@@ -491,7 +492,10 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
                 // Then there will be two isos from i1 to i3, but only one that is compatible with i2
                 boolean isCompatible = MapUtils.isCompatible(iso, transBaseIso);
                 if(!isCompatible) {
-                	logger.warn("incompatible mapping");
+                    // I think it is perfectly valid for mappings to be incompatible at this stage:
+                    // Just because there is an iso between the residual view and insert graph, it does not mean that this is compatible with prior isos between their sub graphs
+                	//logger.warn("incompatible mapping");
+                	
 //                    writer.println("Incompatible:");
 //                    writer.println("iso         : " + iso);
 //                    writer.println("transBaseIso: " + transBaseIso);
@@ -525,8 +529,9 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
 
                 Set<T> residualInsertGraphTags = Sets.difference(insertGraphTags, candEdge.getResidualGraphTags());
 
-                if(("" + childNode.getKey()).equals("http://lsq.aksw.org/res/q-00ea1cb7=0")) {
-                	System.out.println("Got node");
+                String nodeId = "http://lsq.aksw.org/res/q-00e5a47a=0";
+                if(("" + childNode.getKey()).equals(nodeId)) {
+                	System.out.println("Got node " + nodeId);
                     System.out.println("Candidates:");
                     childNode.getEdgeIndex().entrySet().forEach(e -> System.out.println("  Edge: " + e));
                 }
@@ -803,13 +808,13 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
      */
     public Map<K, Entry<BiMap<V, V>, Entry<G, Set<T>>>> loadGraphsInSubTrees(G baseGraph, Set<T> baseGraphTags, Collection<Edge<K, G, V, T>> edges) {
 
-    	Map<K, Entry<BiMap<V, V>, Entry<G, Set<T>>>> result = new HashMap<>();
+    	Map<K, Entry<BiMap<V, V>, Entry<G, Set<T>>>> result = new LinkedHashMap<>();
     	
 
     	for(Edge<K, G, V, T> edge : edges) {
         	BiMap<V, V> transIso = edge.getTransIso();
         	
-        	Map<K, Entry<G, Set<T>>> tmp = new HashMap<>();
+        	Map<K, Entry<G, Set<T>>> tmp = new LinkedHashMap<>();
             loadGraphsInSubTreesCore(tmp, baseGraph, baseGraphTags, Collections.singleton(edge));
             
             
@@ -836,8 +841,8 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
     }
 
     public static <K, V> SetMultimap<K, V> newSetMultimap(boolean identityKeys, boolean identityValues) {
-        Map<K, Collection<V>> keys = identityKeys ? Maps.newIdentityHashMap() : new HashMap<>();
-        com.google.common.base.Supplier<Set<V>> values = identityValues ? Sets::newIdentityHashSet : HashSet::new;
+        Map<K, Collection<V>> keys = identityKeys ? Maps.newIdentityHashMap() : new LinkedHashMap<>();
+        com.google.common.base.Supplier<Set<V>> values = identityValues ? Sets::newIdentityHashSet : LinkedHashSet::new;
 
         return Multimaps.newSetMultimap(keys, values);
     }
@@ -863,7 +868,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
     }
     
     public Map<K, Multimap<Edge<K, G, V, T>, BiMap<V, V>>> loadIsoReachableGraphKeysOld(Collection<Edge<K, G, V, T>> edges) {
-        Map<K, Multimap<Edge<K, G, V, T>, BiMap<V, V>>> result = new HashMap<>();
+        Map<K, Multimap<Edge<K, G, V, T>, BiMap<V, V>>> result = new LinkedHashMap<>();
         for(Edge<K, G, V, T> baseEdge : edges) {
     	    loadIsoReachableGraphKeysOld(result, baseEdge, null, baseEdge);
     	}
@@ -1011,30 +1016,29 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
      * @param forceInsert
      * @param writer
      */
-    int foobar = 0;
+//    int foobar = 0;
     void performAdd(K key, InsertPosition<K, G, V, T> pos, boolean forceInsert) { //, IndentedWriter writer) {
-    	if(("" + key).equals("http://lsq.aksw.org/res/q-00ea1cb7=0")) {
-    		++ foobar;
-    		
-    		if(foobar == 12) {
-    			System.out.println("got the case where it goes wrong");
-    		}
-    		
-    		System.out.println("Got key: " + foobar + " - " + key);
-	    	System.out.println();
-	    	System.out.println("BEFORE");
-	    	printTree();
-	    	performAddCore(key, pos, forceInsert);
-	    	System.out.println();
-	    	System.out.println("AFTER");
-	    	printTree();
-	    	System.out.println();
-    	} else {
+//    	if(("" + key).equals("http://lsq.aksw.org/res/q-00ea1cb7=0")) {
+//    		++ foobar;
+//    		
+//    		if(foobar == 12) {
+//    			System.out.println("got the case where it goes wrong");
+//    		}
+//    		
+//    		System.out.println("Got key: " + foobar + " - " + key);
+//	    	System.out.println();
+//	    	System.out.println("BEFORE");
+//	    	printTree();
+//	    	performAddCore(key, pos, forceInsert);
+//	    	System.out.println();
+//	    	System.out.println("AFTER");
+//	    	printTree();
+//	    	System.out.println();
+//    	} else {
         	performAddCore(key, pos, forceInsert);
-    	}
+//    	}
     }
     
-    int arghCount = 0;
     void performAddCore(K key, InsertPosition<K, G, V, T> pos, boolean forceInsert) { //, IndentedWriter writer) {
     		
     	IndexNode<K, G, V, T> nodeA = pos.getNode();
@@ -1071,9 +1075,9 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
         IndexNode<K, G, V, T> nodeB = createNode(key, null, null); //residualInsertGraphB, residualInsertGraphBTags);
         if(nodeA.isLeaf() || forceInsert) { //nodeA.childIndex.isEmpty()) {
 
-            if(("" + nodeA.getKey()).equals("http://lsq.aksw.org/res/q-00d5ab86=2") && ("" + nodeB.getKey()).equals("http://lsq.aksw.org/res/q-00ea1cb7=0")) {
-                System.out.println("got critital case");
-            }
+//            if(("" + nodeA.getKey()).equals("http://lsq.aksw.org/res/q-00d5ab86=2") && ("" + nodeB.getKey()).equals("http://lsq.aksw.org/res/q-00ea1cb7=0")) {
+//                System.out.println("got critital case");
+//            }
             
             nodeA.appendChild(nodeB, residualInsertGraphB, residualInsertGraphBTags, transIsoAB, baseIsoAB);
             K prefKey = getPrefKey(key);
@@ -1104,7 +1108,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
             // Find all residual graphs reachable from this node and order them by size
 
             
-            Map<K, Entry<G, Set<T>>> keyToGraphAndTags = loadGraphsInSubTreesCore(new HashMap<>(), setOps.createNew(), Collections.emptySet(), directCandEdges);
+            Map<K, Entry<G, Set<T>>> keyToGraphAndTags = loadGraphsInSubTreesCore(new LinkedHashMap<>(), setOps.createNew(), Collections.emptySet(), directCandEdges);
             // For every isomorphism the (keys of the) reached graphs
             
             //Multimap<K, Edge<K, G, V, T>> isoToReachableGraphKeys = loadIsoReachableGraphKeys(ArrayListMultimap.create(), null, directCandEdges);
@@ -1160,7 +1164,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
                 G residualChildGraph = graphAndTags.getKey();
                 Set<T> residualChildGraphTags = graphAndTags.getValue(); 
                 
-                System.out.println("Isos for graphKey " + graphKey + " with nodeBaseIso " + nodeBaseIso);
+                //System.out.println("Isos for graphKey " + graphKey + " with nodeBaseIso " + nodeBaseIso);
                 //for(Edge<K, G, V, T> edgeAC : isoToReachableGraphKeys.get(graphKey)) {
                 for(Entry<Edge<K, G, V, T>, Collection<BiMap<V, V>>> edgeToTransIsos : isoToReachableGraphKeys.get(graphKey).asMap().entrySet()) {
                     Edge<K, G, V, T> edge = edgeToTransIsos.getKey();

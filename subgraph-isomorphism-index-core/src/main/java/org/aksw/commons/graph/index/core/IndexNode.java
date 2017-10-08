@@ -74,8 +74,8 @@ public class IndexNode<K, G, V, T> {
     }
 
 
-    public void appendChild(IndexNode<K, G, V, T> targetNode, G residualGraph, Set<T> residualGraphTags, BiMap<V, V> transIso) {
-        Edge<K, G, V, T> edge = new Edge<>(this.getKey(), targetNode.getKey(), transIso, residualGraph, residualGraphTags);
+    public void appendChild(IndexNode<K, G, V, T> targetNode, G residualGraph, Set<T> residualGraphTags, BiMap<V, V> transIso, BiMap<V, V> baseIso) {
+        Edge<K, G, V, T> edge = new Edge<>(this.getKey(), targetNode.getKey(), transIso, residualGraph, residualGraphTags, baseIso);
 
         targetKeyToEdges.put(targetNode.getKey(), edge);
         edgeIndex.put(edge, residualGraphTags);

@@ -14,14 +14,21 @@ class Edge<K, G, V, T>
     protected Set<T> residualGraphTags;
     protected G residualGraph;
 
-    public Edge(K from, K to, BiMap<V, V> transIso, G residualGraph, Set<T> residualGraphTags) {
+    protected BiMap<V, V> baseIso;
+    
+    public Edge(K from, K to, BiMap<V, V> transIso, G residualGraph, Set<T> residualGraphTags, BiMap<V, V> baseIso) {
         super();
         this.from = from;
         this.to = to;
         this.transIso = transIso;
         this.residualGraph = residualGraph;
         this.residualGraphTags = residualGraphTags;
+        this.baseIso = baseIso;
     }
+    
+    public BiMap<V, V> getBaseIso() {
+		return baseIso;
+	}
 
     public K getFrom() {
         return from;

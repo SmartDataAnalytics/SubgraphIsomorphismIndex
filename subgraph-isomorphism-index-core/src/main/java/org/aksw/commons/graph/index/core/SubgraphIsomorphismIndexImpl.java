@@ -791,6 +791,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
     void add(IndexNode<K, G, V, T> node, K key, G insertGraph, Set<T> insertGraphTags, BiMap<V, V> nodeBaseIso, BiMap<V, V> baseIso, BiMap<V, V> deltaIso, boolean forceInsert) { //, IndentedWriter writer) {
         // The insert graph must be larger than the node Graph
 
+    	System.out.println("Performing addition of " + key + " at node " + node.getKey());
 
         Collection<InsertPosition<K, G, V, T>> positions = new LinkedList<>();
         findInsertPositions(positions, node, insertGraph, insertGraphTags, nodeBaseIso, baseIso, deltaIso, false, false); //, writer);
@@ -1375,8 +1376,8 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
                     // TODO optimize handling of empty diffs
             		IndexNode<K, G, V, T> targetNode = keyToNode.get(edgeTargetKey);
                     
-            		//nodeB.appendChild(targetNode, residualInsertGraph, residualInsertGraphTags, deltaIso, transBaseIso);
-	                add(nodeB, edgeTargetKey, residualInsertGraph, residualInsertGraphTags, null, transBaseIso, deltaIso, false);
+            		nodeB.appendChild(targetNode, residualInsertGraph, residualInsertGraphTags, deltaIso, transBaseIso);
+	                //add(nodeB, edgeTargetKey, residualInsertGraph, residualInsertGraphTags, null, transBaseIso, deltaIso, false);
 
             	}
             	
@@ -1400,48 +1401,66 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
 
             // For nodeB, compute the isomorphisms to all reachable graphs via the directCandEdges of nodeA
 
-	        for(Entry<K, Entry<G, Set<T>>> graphKeyToGraphAndTag : graphsBySize) {
-	        	K graphKey = graphKeyToGraphAndTag.getKey();
-         		IndexNode<K, G, V, T> targetNode = keyToNode.get(graphKey);
+	        for(Entry<K, Entry<G, Set<T>>> targetGraphEntry : graphsBySize) {
+	        	K targetGraphKey = targetGraphEntry.getKey();
+         		IndexNode<K, G, V, T> targetNode = keyToNode.get(targetGraphKey);
 
 	        	
-	        	Entry<G, Set<T>> tmp = graphKeyToGraphAndTag.getValue();
+	        	Entry<G, Set<T>> tmp = targetGraphEntry.getValue();
 	        	G insertGraph = tmp.getKey();
 	        	Set<T> insertGraphTags = tmp.getValue();
-	        	
- 	            for(Entry<Edge<K, G, V, T>, Collection<BiMap<V, V>>> edgeToTransIsos : graphKeyToReachingEdgeAndIso.get(graphKey).asMap().entrySet()) {
- 	                Edge<K, G, V, T> edge = edgeToTransIsos.getKey();
- 	                
- 	                //BiMap<V, V> baseIsoAC = edge.getBaseIso();
- 	             
- 	                for(BiMap<V, V> transIso : edgeToTransIsos.getValue()) {          
-	 	            	
-	 	            	//K edgeTargetKey = edge.getTo();
-	 	            	//G insertGraph = edge.getResidualGraph();
-	 	            	//Set<T> insertGraphTags = edge.getResidualGraphTags();
-	 	                BiMap<V, V> transBaseIso = mapDomainVia(baseIsoAB, transIso);
-	
-	 	            	Iterable<BiMap<V, V>> isos = isoMatcher.match(transBaseIso, viewGraph, insertGraph);
-	
-	 	            	for(BiMap<V, V> iso : isos) {
-	 	                    BiMap<V, V> deltaIso = removeIdentity(iso);
 
-	 	                    G g = setOps.applyIso(viewGraph, deltaIso);
-	
-	 	                    G residualInsertGraph = setOps.difference(insertGraph, g);
-	 	                    Set<T> residualInsertGraphTags = Sets.difference(insertGraphTags, viewGraphTags);
-	 	                    // now create the diff between the insert graph and mapped child graph
-	// 	                    writer.println("Diff " + residualInsertGraph + " has "+ setOps.size(residualInsertGraph) + " triples at depth " + writer.getUnitIndent());
-	
-	 	            		//nodeB.appendChild(targetNode, residualInsertGraph, residualInsertGraphTags, iso, transBaseIso);
-	 	            		
-	 	                    add(nodeB, graphKey, residualInsertGraph, residualInsertGraphTags, null, transBaseIso, deltaIso, false);
-	 	            	}	 	            	
+	        	
+                BiMap<V, V> transBaseIso = mapDomainVia(baseIsoAB, transIsoAB);
+        		
+            	Iterable<BiMap<V, V>> isos = isoMatcher.match(transBaseIso, viewGraph, insertGraph);
+
+            	for(BiMap<V, V> iso : isos) {
+                    BiMap<V, V> deltaIso = removeIdentity(iso);
+
+                    G g = setOps.applyIso(viewGraph, deltaIso);
+
+                    G residualInsertGraph = setOps.difference(insertGraph, g);
+                    Set<T> residualInsertGraphTags = Sets.difference(insertGraphTags, viewGraphTags);
+                    // now create the diff between the insert graph and mapped child graph
+// 	                    writer.println("Diff " + residualInsertGraph + " has "+ setOps.size(residualInsertGraph) + " triples at depth " + writer.getUnitIndent());
+
+            		//nodeB.appendChild(targetNode, residualInsertGraph, residualInsertGraphTags, iso, transBaseIso);
+            		
+                    add(nodeB, targetGraphKey, residualInsertGraph, residualInsertGraphTags, null, transBaseIso, deltaIso, false);
+            	}	 	
+	        	
+//	 	            for(Entry<Edge<K, G, V, T>, Collection<BiMap<V, V>>> edgeToTransIsos : graphKeyToReachingEdgeAndIso.get(targetGraphKey).asMap().entrySet()) {
+//	 	                Edge<K, G, V, T> edge = edgeToTransIsos.getKey();
+//	 	                
+//	 	                BiMap<V, V> baseIsoAC = edge.getBaseIso();
+//	 	             
+//	 	                for(BiMap<V, V> transIso : edgeToTransIsos.getValue()) {          
+//		 	            	
+//		 	            	//K edgeTargetKey = edge.getTo();
+//		 	            	//G insertGraph = edge.getResidualGraph();
+//		 	            	//Set<T> insertGraphTags = edge.getResidualGraphTags();
+//		 	                BiMap<V, V> transBaseIso = mapDomainVia(baseIsoAC /* baseIsoAB ??? */, transIso);
+//		
+//		 	            	Iterable<BiMap<V, V>> isos = isoMatcher.match(transBaseIso, viewGraph, insertGraph);
+//		
+//		 	            	for(BiMap<V, V> iso : isos) {
+//		 	                    BiMap<V, V> deltaIso = removeIdentity(iso);
+//	
+//		 	                    G g = setOps.applyIso(viewGraph, deltaIso);
+//		
+//		 	                    G residualInsertGraph = setOps.difference(insertGraph, g);
+//		 	                    Set<T> residualInsertGraphTags = Sets.difference(insertGraphTags, viewGraphTags);
+//		 	                    // now create the diff between the insert graph and mapped child graph
+//		// 	                    writer.println("Diff " + residualInsertGraph + " has "+ setOps.size(residualInsertGraph) + " triples at depth " + writer.getUnitIndent());
+//		
+//		 	            		//nodeB.appendChild(targetNode, residualInsertGraph, residualInsertGraphTags, iso, transBaseIso);
+//		 	            		
+//		 	                    add(nodeB, targetGraphKey, residualInsertGraph, residualInsertGraphTags, null, transBaseIso, deltaIso, false);
+//		 	            	}	 	            	
+//		 	            }
 	 	            }
-		        	
- 	            }
-	        }
-	                    
+	 	            
             
             
             //            

@@ -470,7 +470,13 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
             // E.g. if the parent was {(?x a Foo)} and the child is {(?s a Bar)}, then the transIso could be ?x -> ?s
             // if the child node's full graph was { ?s a Foo ; a Bar }.
             BiMap<V, V> childTransIso = candEdge.getTransIso();
-            BiMap<V, V> transBaseIso = mapDomainVia(baseIsoToInsertGraph, childTransIso);
+            BiMap<V, V> transBaseIso;
+            try {
+            	transBaseIso = mapDomainVia(baseIsoToInsertGraph, childTransIso);
+            } catch(Exception e) {
+            	logger.warn("Transferring found iso via iso of a candidate edge failed. Not sure if we can safely ignore this case");
+            	continue;
+            }
 
             BiMap<V, V> transNodeBaseIso = null;//mapDomainVia(nodeBaseIso, childTransIso);
 //            System.out.println("base: " + nodeBaseIso);

@@ -7,9 +7,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.aksw.commons.collections.tagmap.TagMap;
 import org.aksw.commons.graph.index.core.SubgraphIsomorphismIndex;
 import org.aksw.commons.graph.index.core.SubgraphIsomorphismIndexFlat;
 import org.aksw.commons.graph.index.core.SubgraphIsomorphismIndexImpl;
+import org.aksw.commons.graph.index.core.SubgraphIsomorphismIndexTagBased;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.util.NodeUtils;
@@ -40,6 +42,16 @@ public class SubgraphIsomorphismIndexJena {
                         SubgraphIsomorphismIndexJena::extractGraphTags,
                         NodeUtils::compareRDFTerms,
                         new IsoMatcherImpl<>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator));
+        return result;
+    }
+
+    public static <K> SubgraphIsomorphismIndexTagBased<K, DirectedGraph<Node, Triple>, Node, Node> createTagBased(TagMap<K, Node> tagMap) {
+    	SubgraphIsomorphismIndexTagBased<K, DirectedGraph<Node, Triple>, Node, Node> result =
+                new SubgraphIsomorphismIndexTagBased<K, DirectedGraph<Node, Triple>, Node, Node>(
+                		new IsoMatcherImpl<>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator),
+                        SubgraphIsomorphismIndexJena::extractGraphTags,
+                        tagMap
+                        );
         return result;
     }
 

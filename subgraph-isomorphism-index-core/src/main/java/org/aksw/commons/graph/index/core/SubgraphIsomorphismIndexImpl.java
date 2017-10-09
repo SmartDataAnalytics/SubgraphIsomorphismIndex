@@ -661,7 +661,9 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
                 ? Collections.emptySet()
                 : prefKeyToAltKeysWithIso.row(prefKey).keySet();
 
-        System.out.println(indent + node.getKey() + " " + altKeys +  " ---  transIso: " + transIso + " --- residualTags: " + residualTags);
+        String line = indent + node.getKey() + " " + altKeys +  " ---  transIso: " + transIso + " --- residualTags: " + residualTags;
+        //System.out.println("next line length: " + line.length());
+        System.out.println(line);
         
         Collection<Edge<K, G, V, T>> edges = node.getEdgeIndex().keySet();
         //Collection<Edge<K, G, V, T>> edges = node.getTargetKeyToEdges().values();

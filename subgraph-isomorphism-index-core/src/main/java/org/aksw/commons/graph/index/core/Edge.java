@@ -1,5 +1,6 @@
 package org.aksw.commons.graph.index.core;
 
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.BiMap;
@@ -24,6 +25,11 @@ class Edge<K, G, V, T>
         this.residualGraph = residualGraph;
         this.residualGraphTags = residualGraphTags;
         this.baseIso = baseIso;
+        
+        if(Objects.equals(from, to)) {
+        	throw new RuntimeException("Should not happen");
+        }
+
     }
     
     public BiMap<V, V> getBaseIso() {

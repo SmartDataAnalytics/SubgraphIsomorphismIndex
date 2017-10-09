@@ -1,15 +1,14 @@
 package org.aksw.commons.graph.index.core;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
 
 import org.aksw.commons.collections.tagmap.TagMap;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.BiMap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Table;
 
 public class IndexNode<K, G, V, T> {
     // The key associated with the node. null for the root node
@@ -19,7 +18,8 @@ public class IndexNode<K, G, V, T> {
     protected Set<T> graphTags;
 
     // Transitions to target keys
-    protected Multimap<K, Edge<K, G, V, T>> targetKeyToEdges;
+    //protected Multimap<K, Edge<K, G, V, T>> targetKeyToEdges;
+    protected Table<K, BiMap<V, V>, Edge<K, G, V, T>> targetKeyToEdges;
     protected TagMap<Edge<K, G, V, T>, T> edgeIndex;
 
 
@@ -54,7 +54,7 @@ public class IndexNode<K, G, V, T> {
         this.graph = graph;
         this.graphTags = graphTags;
         this.edgeIndex = edgeIndex;
-        this.targetKeyToEdges = ArrayListMultimap.create();
+        this.targetKeyToEdges = HashBasedTable.create(); //ArrayListMultimap.create();
     }
 
     public K getKey() {
@@ -75,10 +75,20 @@ public class IndexNode<K, G, V, T> {
 
 
     public void appendChild(IndexNode<K, G, V, T> targetNode, G residualGraph, Set<T> residualGraphTags, BiMap<V, V> transIso, BiMap<V, V> baseIso) {
-        Edge<K, G, V, T> edge = new Edge<>(this.getKey(), targetNode.getKey(), transIso, residualGraph, residualGraphTags, baseIso);
 
-        targetKeyToEdges.put(targetNode.getKey(), edge);
+    	Edge<K, G, V, T> priorEdge = targetKeyToEdges.get(targetNode.getKey(), transIso);
+    	
+    	if(priorEdge != null) {
+    		System.out.println("Note: Edge already existed; replacing");
+            edgeIndex.remove(priorEdge);
+    	}
+
+		Edge<K, G, V, T> edge = new Edge<>(this.getKey(), targetNode.getKey(), transIso, residualGraph, residualGraphTags, baseIso);
+        targetKeyToEdges.put(targetNode.getKey(), transIso, edge);
+        
         edgeIndex.put(edge, residualGraphTags);
+
+    	System.out.println("Appended edge: " + edge);
         
 //        Set<Edge<K, G, V, T>> x = Sets.newIdentityHashSet();
 //        x.addAll(this.getEdgeIndex().keySet());
@@ -110,11 +120,16 @@ public class IndexNode<K, G, V, T> {
     }
 
     public void removeChildById(K targetNodeKey) {
-        Collection<Edge<K, G, V, T>> edges = targetKeyToEdges.get(targetNodeKey);
+        Collection<Edge<K, G, V, T>> edges = targetKeyToEdges.row(targetNodeKey).values();
         for(Edge<K, G, V, T> edge : edges) {
             edgeIndex.remove(edge);
         }
-        targetKeyToEdges.removeAll(targetNodeKey);
+        targetKeyToEdges.row(targetNodeKey).clear();
+    }
+    
+    @Override
+    public String toString() {
+    	return "IndexNode [" + key + "]";
     }
 
 //    public Collection<Edge<K, G, V, T>> getEdgesByTargetKey(K targetKey) {

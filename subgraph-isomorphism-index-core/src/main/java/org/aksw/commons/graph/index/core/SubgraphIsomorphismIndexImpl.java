@@ -1435,8 +1435,8 @@ if(false) {
             }
 
             
-            System.out.println("Tree after breaking edges:");
-            printTree();
+//            System.out.println("Tree after breaking edges:");
+//            printTree();
 //if(true) return;
         	// Starting from nodeB:
         	// (1) Find all reachable graphs together with all isos
@@ -1486,7 +1486,7 @@ if(false) {
                     // Skip known isos
                     boolean isKnown = knownIsos.contains(deltaIso);
                     if(isKnown) { 
-                    	System.out.println("Known iso: " + insertGraphKey + ": " + deltaIso);
+//                    	System.out.println("Known iso: " + insertGraphKey + ": " + deltaIso);
                     	continue;
                     }
                     
@@ -1499,17 +1499,17 @@ if(false) {
 
                     IndexNode<K, G, V, T> targetNode = keyToNode.get(insertGraphKey);
             		
-                    System.out.println("Addending transitive edge to " + insertGraphKey);
+//                    System.out.println("Addending transitive edge to " + insertGraphKey);
                     
                     nodeB.appendChild(targetNode, residualInsertGraph, residualInsertGraphTags, deltaIso, null);
             		
-                    System.out.println();
+//                    System.out.println();
                     //add(nodeB, insertGraphKey, residualInsertGraph, residualInsertGraphTags, null, baseIsoAB, deltaIso, false);
             	}	
 	        }
 	        
-	        System.out.println("Updated tree:");
-	        printTree();
+//	        System.out.println("Updated tree:");
+//	        printTree();
 ////	        	
 //	 	            for(Entry<Edge<K, G, V, T>, Collection<BiMap<V, V>>> edgeToTransIsos : graphKeyToReachingEdgeAndIso.get(targetGraphKey).asMap().entrySet()) {
 //	 	                Edge<K, G, V, T> edge = edgeToTransIsos.getKey();

@@ -26,6 +26,11 @@ class Edge<K, G, V, T>
         this.residualGraphTags = residualGraphTags;
         this.baseIso = baseIso;
         
+        
+        if(("" + transIso).contains("?o=?confec")) {
+        	System.out.println("dammit");
+        }
+        
         if(Objects.equals(from, to)) {
         	throw new RuntimeException("Should not happen");
         }

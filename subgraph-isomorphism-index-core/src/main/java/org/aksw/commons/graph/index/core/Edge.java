@@ -27,10 +27,14 @@ class Edge<K, G, V, T>
         this.baseIso = baseIso;
         
         
-        if(("" + transIso).contains("?o=?confec")) {
-        	System.out.println("dammit");
-        }
-        
+        if(("" + to).equals("http://lsq.aksw.org/res/q-07d915bc=3")) {
+	        if(("" + transIso).contains("{}")) {
+	        	System.out.println("dammit1");
+	        }
+	        if(("" + transIso).contains("{?author=?author_url}")) {
+	        	System.out.println("dammit1");
+	        }
+        }        
         if(Objects.equals(from, to)) {
         	throw new RuntimeException("Should not happen");
         }

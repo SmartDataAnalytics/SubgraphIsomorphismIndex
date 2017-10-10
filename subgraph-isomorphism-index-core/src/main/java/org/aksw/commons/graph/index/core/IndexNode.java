@@ -72,6 +72,15 @@ public class IndexNode<K, G, V, T> {
     public TagMap<Edge<K, G, V, T>, T> getEdgeIndex() {
         return edgeIndex;
     }
+    
+    
+    public void removeEdge(Edge<K, G, V, T> edge) {
+    	K targetKey = edge.getTo();
+    	BiMap<V, V> iso = edge.getTransIso();
+
+        edgeIndex.remove(edge);
+        targetKeyToEdges.row(targetKey).remove(iso);
+    }
 
 
     public void appendChild(IndexNode<K, G, V, T> targetNode, G residualGraph, Set<T> residualGraphTags, BiMap<V, V> transIso, BiMap<V, V> baseIso) {

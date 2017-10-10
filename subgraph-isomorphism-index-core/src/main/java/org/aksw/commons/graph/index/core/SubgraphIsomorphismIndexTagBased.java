@@ -50,6 +50,13 @@ public class SubgraphIsomorphismIndexTagBased<K, G, V, T>
 
 	@Override
 	public K put(K key, G graph) {
+        if(("" + key).equals("http://lsq.aksw.org/res/q-0a3ec3ad=0") || ("" + key).equals("http://lsq.aksw.org/res/q-0a553057=0")) {
+	        System.out.println("HERE: " + key);
+	        System.out.println(graph);
+	        
+	    }
+	    
+	    
         Set<T> insertGraphTags = extractGraphTagsWrapper(graph);
 
 		tagMap.put(key, insertGraphTags);
@@ -68,6 +75,10 @@ public class SubgraphIsomorphismIndexTagBased<K, G, V, T>
 		
 		BiMap<V, V> baseIso = HashBiMap.create();
 		for(K key : cands.keySet()) {
+		    if(("" + key).equals("http://lsq.aksw.org/res/q-0a3ec3ad=0") || ("" + key).equals("http://lsq.aksw.org/res/q-0a553057=0")) {
+		        System.out.println("HERE");
+		    }
+		    
 			G viewGraph = keyToGraph.get(key);
 
 			Iterable<BiMap<V, V>> isos = isoMatcher.match(baseIso, viewGraph, queryGraph);

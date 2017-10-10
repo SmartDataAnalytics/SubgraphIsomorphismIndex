@@ -34,7 +34,12 @@ class Edge<K, G, V, T>
 	        if(("" + transIso).contains("{?author=?author_url}")) {
 	        	System.out.println("dammit1");
 	        }
-        }        
+        }
+
+// Loops like the data below (i.e. ?obj ?prop ?targetObj) should be prevented
+//        (quad <urn:x-arq:DefaultGraphNode> ?obj <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://data.semanticweb.org/ns/swc/ontology#Chair>)
+//        (quad <urn:x-arq:DefaultGraphNode> ?obj ?prop ?targetObj)
+//        (quad <urn:x-arq:DefaultGraphNode> ?targetObj <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?targetType)        
         if(Objects.equals(from, to)) {
         	throw new RuntimeException("Should not happen");
         }

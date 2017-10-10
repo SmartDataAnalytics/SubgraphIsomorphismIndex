@@ -85,19 +85,19 @@ public class IndexNode<K, G, V, T> {
 
     public void appendChild(IndexNode<K, G, V, T> targetNode, G residualGraph, Set<T> residualGraphTags, BiMap<V, V> transIso, BiMap<V, V> baseIso) {
 
+        Edge<K, G, V, T> edge = new Edge<>(this.getKey(), targetNode.getKey(), transIso, residualGraph, residualGraphTags, baseIso);
     	Edge<K, G, V, T> priorEdge = targetKeyToEdges.get(targetNode.getKey(), transIso);
     	
     	if(priorEdge != null) {
-    		System.out.println("Note: Edge already existed; replacing");
+    		//System.out.println("Note: Edge already existed; replacing");
             edgeIndex.remove(priorEdge);
     	}
 
-		Edge<K, G, V, T> edge = new Edge<>(this.getKey(), targetNode.getKey(), transIso, residualGraph, residualGraphTags, baseIso);
         targetKeyToEdges.put(targetNode.getKey(), transIso, edge);
         
         edgeIndex.put(edge, residualGraphTags);
 
-    	System.out.println("Appended edge: " + edge);
+    	//System.out.println("Appended edge: " + edge);
         
 //        Set<Edge<K, G, V, T>> x = Sets.newIdentityHashSet();
 //        x.addAll(this.getEdgeIndex().keySet());

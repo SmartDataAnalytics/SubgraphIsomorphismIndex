@@ -27,12 +27,14 @@ class Edge<K, G, V, T>
         this.baseIso = baseIso;
         
         
-        if(("" + to).equals("http://lsq.aksw.org/res/q-07d915bc=3")) {
+        if(("" + to).equals("http://lsq.aksw.org/res/q-08237184=0")) {
 	        if(("" + transIso).contains("{}")) {
 	        	System.out.println("dammit1");
 	        }
-	        if(("" + transIso).contains("{?author=?author_url}")) {
-	        	System.out.println("dammit1");
+	        
+	        String x = ("" + transIso);
+	        if(!x.contains("?value=?val") && x.contains("?obj=?X0") && x.contains("?attrUri=?v_3")) {
+	        	System.out.println("dammit2");
 	        }
         }
 

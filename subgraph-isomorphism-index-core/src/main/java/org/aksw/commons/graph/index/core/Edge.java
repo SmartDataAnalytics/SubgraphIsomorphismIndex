@@ -27,18 +27,18 @@ class Edge<K, G, V, T>
         this.baseIso = baseIso;
         
         
-        if(("" + to).equals("http://lsq.aksw.org/res/q-08237184=0")) {
-	        if(("" + transIso).contains("{}")) {
-	        	System.out.println("dammit1");
-	        }
-	        
-	        String x = ("" + transIso);
-	        if(!x.contains("?value=?val") && x.contains("?obj=?X0") && x.contains("?attrUri=?v_3")) {
-	        	System.out.println("dammit2");
-	        }
-        }
+//        if(("" + to).equals("http://lsq.aksw.org/res/q-08237184=0")) {
+//	        if(("" + transIso).contains("{}")) {
+//	        	System.out.println("dammit1");
+//	        }
+//	        
+//	        String x = ("" + transIso);
+//	        if(!x.contains("?value=?val") && x.contains("?obj=?X0") && x.contains("?attrUri=?v_3")) {
+//	        	System.out.println("dammit2");
+//	        }
+//        }
 
-// Loops like the data below (i.e. ?obj ?prop ?targetObj) should be prevented
+// Potential loops when data like below gets split into residual graphs (i.e. ?obj ?prop ?targetObj) should be prevented
 //        (quad <urn:x-arq:DefaultGraphNode> ?obj <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://data.semanticweb.org/ns/swc/ontology#Chair>)
 //        (quad <urn:x-arq:DefaultGraphNode> ?obj ?prop ?targetObj)
 //        (quad <urn:x-arq:DefaultGraphNode> ?targetObj <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?targetType)        

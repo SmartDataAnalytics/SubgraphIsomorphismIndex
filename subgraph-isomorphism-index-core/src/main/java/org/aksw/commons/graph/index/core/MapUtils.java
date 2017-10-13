@@ -14,7 +14,16 @@ public class MapUtils {
     }
 
     public static <K, V> boolean isCompatible(Set<K> keysToTest, Map<K, V> a, Map<K, V> b) {
-        boolean result = true;
+// TODO We could use a parallel stream based version
+//        boolean result = keysToTest.stream().allMatch(key -> {
+//            V av = a.get(key);
+//            V bv = b.get(key);
+//            boolean r = Objects.equal(av, bv);
+//            return r;
+//        });
+    	
+    	
+    	boolean result = true;
         for(K key : keysToTest) {
             V av = a.get(key);
             V bv = b.get(key);

@@ -90,8 +90,8 @@ public class SubgraphIsomorphismIndexTagBased<K, G, V, T>
 			Iterator<BiMap<V, V>> it = isos.iterator();
 			while(it.hasNext()) {
 				BiMap<V, V> tmp = it.next();
-                BiMap<V, V> iso = SubgraphIsomorphismIndexImpl.removeIdentity(tmp);
-				result.put(key, iso);
+                //BiMap<V, V> iso = SubgraphIsomorphismIndexImpl.removeIdentity(tmp);
+				result.put(key, tmp);
 			}
 		}
 

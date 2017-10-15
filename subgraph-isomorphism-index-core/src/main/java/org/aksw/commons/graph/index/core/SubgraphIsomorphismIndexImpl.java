@@ -252,7 +252,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
                         BiMap<V, V> altKeyIso = mapDomainVia(baseIso, transIso);
                         //kIso = removeIdentity(kIso);
 
-                        altKeyIso = removeIdentity(altKeyIso);
+                        //altKeyIso = removeIdentity(altKeyIso);
                         result.put(altKey, altKeyIso);
                     }
                 }

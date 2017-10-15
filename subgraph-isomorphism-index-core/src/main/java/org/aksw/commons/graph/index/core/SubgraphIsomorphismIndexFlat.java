@@ -64,9 +64,9 @@ public class SubgraphIsomorphismIndexFlat<K, G, V>
 			while(it.hasNext()) {
 				BiMap<V, V> tmp = it.next();
 //                System.out.println("    Raw Iso: " + tmp);
-                BiMap<V, V> iso = SubgraphIsomorphismIndexImpl.removeIdentity(tmp);
+                //BiMap<V, V> iso = SubgraphIsomorphismIndexImpl.removeIdentity(tmp);
                 //System.out.println("    Clean Iso: " + iso);
-				result.put(key, iso);
+				result.put(key, tmp);
 			}
 		}
 

@@ -65,7 +65,12 @@ public class SubgraphIsomorphismIndexTagBased<K, G, V, T>
 	}
 
 	@Override
-	public Multimap<K, BiMap<V, V>> lookupX(G queryGraph, boolean exactMatch) {
+	public Multimap<K, BiMap<V, V>> lookupX(G queryGraph, boolean exactMatch, BiMap<V, V> baseIso) {
+    	if(baseIso == null) {
+    		baseIso = HashBiMap.create();
+    	}
+
+		
 		Multimap<K, BiMap<V, V>> result = HashMultimap.create();
 
 		
@@ -73,11 +78,11 @@ public class SubgraphIsomorphismIndexTagBased<K, G, V, T>
 
         TagMap<K, T> cands = tagMap.getAllSubsetsOf(insertGraphTags, false);
 		
-		BiMap<V, V> baseIso = HashBiMap.create();
+		//BiMap<V, V> baseIso = HashBiMap.create();
 		for(K key : cands.keySet()) {
-		    if(("" + key).equals("http://lsq.aksw.org/res/q-0a3ec3ad=0") || ("" + key).equals("http://lsq.aksw.org/res/q-0a553057=0")) {
-		        System.out.println("HERE");
-		    }
+//		    if(("" + key).equals("http://lsq.aksw.org/res/q-0a3ec3ad=0") || ("" + key).equals("http://lsq.aksw.org/res/q-0a553057=0")) {
+//		        System.out.println("HERE");
+//		    }
 		    
 			G viewGraph = keyToGraph.get(key);
 

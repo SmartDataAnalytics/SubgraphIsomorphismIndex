@@ -46,10 +46,10 @@ public class SubgraphIsomorphismIndexWrapper<K, O, G, V>
 //    }
 
     @Override
-    public Multimap<K, BiMap<V, V>> lookupX(O queryObj, boolean exactMatch) {
+    public Multimap<K, BiMap<V, V>> lookupX(O queryObj, boolean exactMatch, BiMap<V, V> baseIso) {
         G graph = objectToGraph.apply(queryObj);
 
-        Multimap<K, BiMap<V, V>> result = index.lookupX(graph, exactMatch);
+        Multimap<K, BiMap<V, V>> result = index.lookupX(graph, exactMatch, baseIso);
         return result;
     }
 

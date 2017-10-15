@@ -1,6 +1,7 @@
 package org.aksw.commons.graph.index.core;
 
 import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Multimap;
 
 
@@ -52,8 +53,14 @@ public interface SubgraphIsomorphismIndex<K, G, N> {
     //Map<K, Iterable<BiMap<N, N>>> lookupStream(G queryGraph, boolean exactMatch);
 
 
-    Multimap<K, BiMap<N, N>> lookupX(G queryGraph, boolean exactMatch);
+    Multimap<K, BiMap<N, N>> lookupX(G queryGraph, boolean exactMatch, BiMap<N, N> baseIso);
 
+    // Convenience default method where the baseIso is omitted and thus considered an empty map
+    default Multimap<K, BiMap<N, N>> lookupX(G queryGraph, boolean exactMatch) {
+    	Multimap<K, BiMap<N, N>> result = lookupX(queryGraph, exactMatch, HashBiMap.create());
+    	return result;
+    }
+    
     // FIXME Temporary debug method
     void printTree();
 

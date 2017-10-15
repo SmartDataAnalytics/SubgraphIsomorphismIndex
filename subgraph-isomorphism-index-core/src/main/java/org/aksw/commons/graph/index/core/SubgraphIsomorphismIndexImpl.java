@@ -212,8 +212,12 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
     }
 
 
-    public Multimap<K, BiMap<V, V>> lookupX(G queryGraph, boolean exactMatch) {
-        Multimap<K, InsertPosition<K, G, V, T>> matches = lookup(queryGraph, exactMatch);
+    public Multimap<K, BiMap<V, V>> lookupX(G queryGraph, boolean exactMatch, BiMap<V, V> lookupBaseIso) {
+    	if(lookupBaseIso == null) {
+    		lookupBaseIso = HashBiMap.create();
+    	}
+    	
+    	Multimap<K, InsertPosition<K, G, V, T>> matches = lookup(lookupBaseIso, queryGraph, exactMatch);
 
         Multimap<K, BiMap<V, V>> result = newSetMultimap(false, false);//HashMultimap.create();
         //matches.values().map()
@@ -246,8 +250,9 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
                         // TODO THe transIso is just the delta - we need to assemble it from all parents
                         //System.out.println("Iso from " + prefKey + " to " + altKey + ": " + transIso);
                         BiMap<V, V> altKeyIso = mapDomainVia(baseIso, transIso);
-                        altKeyIso = removeIdentity(altKeyIso);
                         //kIso = removeIdentity(kIso);
+
+                        altKeyIso = removeIdentity(altKeyIso);
                         result.put(altKey, altKeyIso);
                     }
                 }
@@ -262,11 +267,15 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
      * @see org.aksw.jena_sparql_api.iso.index.SubGraphIsomorphismIndex#lookup(G, boolean)
      */
     //@Override
-    public Multimap<K, InsertPosition<K, G, V, T>> lookup(G queryGraph, boolean exactMatch) {    	
+    public Multimap<K, InsertPosition<K, G, V, T>> lookup(BiMap<V, V> baseIso, G queryGraph, boolean exactMatch) {    	
         Set<T> queryGraphTags = extractGraphTagsWrapper(queryGraph);
 
         Collection<InsertPosition<K, G, V, T>> positions = new LinkedList<>();
-        findInsertPositions(positions, rootNode, queryGraph, queryGraphTags, null, HashBiMap.create(), HashBiMap.create(), true, exactMatch); //, writer);
+        
+        // Create a copy because findInsertPosition will do in-place changes
+        BiMap<V, V> baseIsoCopy = HashBiMap.create(baseIso);
+        
+        findInsertPositions(positions, rootNode, queryGraph, queryGraphTags, null, baseIsoCopy, HashBiMap.create(), true, exactMatch); //, writer);
 
         Multimap<K, InsertPosition<K, G, V, T>> result = newSetMultimap(false, true);//HashMultimap.create();
         //logger.debug("Lookup result candidates: " + positions.size());

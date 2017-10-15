@@ -46,12 +46,15 @@ public class SubgraphIsomorphismIndexFlat<K, G, V>
 	}
 
 	@Override
-	public Multimap<K, BiMap<V, V>> lookupX(G queryGraph, boolean exactMatch) {
+	public Multimap<K, BiMap<V, V>> lookupX(G queryGraph, boolean exactMatch, BiMap<V, V> baseIso) {
 		Multimap<K, BiMap<V, V>> result = HashMultimap.create();
 		
 //		System.out.println("Query graph: " + queryGraph);
 		
-		BiMap<V, V> baseIso = HashBiMap.create();
+		if(baseIso == null) {
+			baseIso = HashBiMap.create();
+		}
+		
 		for(Entry<K, G> entry : keyToGraph.entrySet()) {
 			K key = entry.getKey();
 			G viewGraph = entry.getValue();

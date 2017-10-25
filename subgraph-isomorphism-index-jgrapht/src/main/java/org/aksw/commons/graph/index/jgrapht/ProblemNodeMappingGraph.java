@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import org.aksw.combinatorics.solvers.ProblemMappingKPermutationsOfN;
 import org.aksw.combinatorics.solvers.ProblemNeighborhoodAware;
+import org.aksw.commons.graph.index.core.MapUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphMapping;
 import org.jgrapht.alg.isomorphism.IsomorphicGraphMapping;
@@ -150,7 +151,9 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
                 //System.out.println("Created node map: " + nodeMap);
                 return nodeMap;
             })
-            .filter(x -> x != null);
+            .filter(x -> x != null)
+			.filter(iso -> MapUtils.isCompatible(baseSolution, iso));
+
 
         return result;
     }

@@ -6,6 +6,7 @@ import java.util.function.Function;
 import org.aksw.combinatorics.solvers.ProblemNeighborhoodAware;
 import org.aksw.commons.graph.index.core.IsoMatcher;
 import org.aksw.commons.graph.index.jgrapht.ProblemNodeMappingGraph;
+import org.apache.jena.ext.com.google.common.collect.HashBiMap;
 import org.jgrapht.Graph;
 
 import com.google.common.collect.BiMap;
@@ -24,8 +25,8 @@ public class IsoMatcherImpl<V, E, G extends Graph<V, E>>
 	    this.createEdgeComparator = createEdgeComparator;
 	}
 
-	public ProblemNeighborhoodAware<BiMap<V, V>, V> toProblem(BiMap<V, V> baseIso, G viewGraph, G insertGraph) {
-	    ProblemNeighborhoodAware<BiMap<V, V>, V> result = new ProblemNodeMappingGraph<V, E, G, V>(
+	public ProblemNeighborhoodAware<BiMap<V, V>, V> toProblem(BiMap<V, V> baseIso, G viewGraph, G insertGraph) {		
+		ProblemNeighborhoodAware<BiMap<V, V>, V> result = new ProblemNodeMappingGraph<V, E, G, V>(
 	            baseIso, viewGraph, insertGraph,
 	            createVertexComparator, createEdgeComparator);
 	
@@ -34,7 +35,10 @@ public class IsoMatcherImpl<V, E, G extends Graph<V, E>>
 	    return result;
 	}
 	
-	
+
+	/**
+	 * Make sure that baseIso is not modified
+	 */
 	@Override
 	public Iterable<BiMap<V, V>> match(BiMap<V, V> baseIso, G viewGraph, G insertGraph) {
 	    ProblemNeighborhoodAware<BiMap<V, V>, V> problem = toProblem(baseIso, viewGraph, insertGraph);

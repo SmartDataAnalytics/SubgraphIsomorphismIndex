@@ -1,9 +1,9 @@
 package org.aksw.commons.graph.index.core;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 
 public class MapUtils {
@@ -27,7 +27,7 @@ public class MapUtils {
         for(K key : keysToTest) {
             V av = a.get(key);
             V bv = b.get(key);
-            result = Objects.equal(av, bv);
+            result = Objects.equals(av, bv);
             if(!result) {
                 break;
             }

@@ -4,7 +4,7 @@
 
     <groupId>org.aksw.commons</groupId>
     <artifactId>subgraph-isomorphism-index-parent</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
 
     <packaging>pom</packaging>
 
@@ -29,7 +29,7 @@
         <url>https://github.com/AKSW/SubgraphIsomorphismIndex</url>
         <connection>scm:git:git://github.com/AKSW/SubgraphIsomorphismIndex.git</connection>
         <developerConnection>scm:git:git@github.com:AKSW/SubgraphIsomorphismIndex.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>subgraph-isomorphism-index-parent-1.0.1</tag>
     </scm>
 
     <developers>

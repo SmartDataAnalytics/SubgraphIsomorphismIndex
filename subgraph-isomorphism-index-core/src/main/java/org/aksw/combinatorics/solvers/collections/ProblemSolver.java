@@ -1,5 +1,6 @@
 package org.aksw.combinatorics.solvers.collections;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.function.BinaryOperator;
 import java.util.stream.Stream;
@@ -68,6 +69,14 @@ public class ProblemSolver<S> {
                     return r;
                 });
         }
+        return result;
+    }
+
+    public static <S> Stream<S> solve(Collection<? extends GenericProblem<S, ?>> problems, S baseSolution, BinaryOperator<S> solutionCombiner) {
+        ProblemContainer<S> problemContainer = ProblemContainerImpl.create(problems);
+    	ProblemSolver<S> problemSolver = new ProblemSolver<S>(problemContainer, baseSolution, solutionCombiner);
+        Stream<S> result = problemSolver.streamSolutions();
+
         return result;
     }
 

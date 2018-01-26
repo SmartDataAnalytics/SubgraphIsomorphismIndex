@@ -56,17 +56,17 @@ public class SubgraphIsomorphismIndexJena {
     }
 
 
-    public static Comparator<Node> createNodeComparator(BiMap<Node, Node> baseIso) {
+    public static Comparator<Node> createNodeComparator(BiMap<? extends Node, ? extends Node> baseIso) {
         Comparator<Node> result = (x, y) -> compareNodes(baseIso, x, y);
         return result;
     }
 
-    public static Comparator<Triple> createEdgeComparator(BiMap<Node, Node> baseIso) {
+    public static Comparator<Triple> createEdgeComparator(BiMap<? extends Node, ? extends Node> baseIso) {
         Comparator<Triple> result = (x, y) -> compareNodes(baseIso, x.getPredicate(), y.getPredicate());
         return result;
     }
 
-    public static int compareNodes(BiMap<Node, Node> baseIso, Node i, Node j) {
+    public static int compareNodes(BiMap<? extends Node, ? extends Node> baseIso, Node i, Node j) {
         int result = (
                         (i.isVariable() && j.isVariable()) ||
                         (i.isBlank() && j.isBlank() ||

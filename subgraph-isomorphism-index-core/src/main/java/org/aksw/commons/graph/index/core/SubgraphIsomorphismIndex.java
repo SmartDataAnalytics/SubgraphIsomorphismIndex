@@ -53,11 +53,11 @@ public interface SubgraphIsomorphismIndex<K, G, N> {
     //Map<K, Iterable<BiMap<N, N>>> lookupStream(G queryGraph, boolean exactMatch);
 
 
-    Multimap<K, BiMap<N, N>> lookupX(G queryGraph, boolean exactMatch, BiMap<N, N> baseIso);
+    Multimap<K, BiMap<N, N>> lookup(G queryGraph, boolean exactMatch, BiMap<? extends N, ? extends N> baseIso);
 
     // Convenience default method where the baseIso is omitted and thus considered an empty map
-    default Multimap<K, BiMap<N, N>> lookupX(G queryGraph, boolean exactMatch) {
-    	Multimap<K, BiMap<N, N>> result = lookupX(queryGraph, exactMatch, HashBiMap.create());
+    default Multimap<K, BiMap<N, N>> lookup(G queryGraph, boolean exactMatch) {
+    	Multimap<K, BiMap<N, N>> result = lookup(queryGraph, exactMatch, HashBiMap.create());
     	return result;
     }
     

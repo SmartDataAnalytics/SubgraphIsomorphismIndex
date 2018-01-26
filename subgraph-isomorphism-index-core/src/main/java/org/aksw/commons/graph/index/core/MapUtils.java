@@ -7,13 +7,13 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 
 public class MapUtils {
-    public static <K, V> boolean isCompatible(Map<K, V> a, Map<K, V> b) {
-        Set<K> commonKeys = Sets.intersection(a.keySet(), b.keySet());
+    public static boolean isCompatible(Map<?, ?> a, Map<?, ?> b) {
+        Set<?> commonKeys = Sets.intersection(a.keySet(), b.keySet());
         boolean result = isCompatible(commonKeys, a, b);
         return result;
     }
 
-    public static <K, V> boolean isCompatible(Set<K> keysToTest, Map<K, V> a, Map<K, V> b) {
+    public static <K, V> boolean isCompatible(Set<?> keysToTest, Map<?, ?> a, Map<?, ?> b) {
 // TODO We could use a parallel stream based version
 //        boolean result = keysToTest.stream().allMatch(key -> {
 //            V av = a.get(key);
@@ -24,9 +24,9 @@ public class MapUtils {
     	
     	
     	boolean result = true;
-        for(K key : keysToTest) {
-            V av = a.get(key);
-            V bv = b.get(key);
+        for(Object key : keysToTest) {
+            Object av = a.get(key);
+            Object bv = b.get(key);
             result = Objects.equals(av, bv);
             if(!result) {
                 break;

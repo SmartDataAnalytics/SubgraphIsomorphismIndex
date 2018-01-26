@@ -212,12 +212,12 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
     }
 
 
-    public Multimap<K, BiMap<V, V>> lookupX(G queryGraph, boolean exactMatch, BiMap<V, V> lookupBaseIso) {
+    public Multimap<K, BiMap<V, V>> lookup(G queryGraph, boolean exactMatch, BiMap<? extends V, ? extends V> lookupBaseIso) {
     	if(lookupBaseIso == null) {
     		lookupBaseIso = HashBiMap.create();
     	}
     	
-    	Multimap<K, InsertPosition<K, G, V, T>> matches = lookup(lookupBaseIso, queryGraph, exactMatch);
+    	Multimap<K, InsertPosition<K, G, V, T>> matches = lookupCore(lookupBaseIso, queryGraph, exactMatch);
 
         Multimap<K, BiMap<V, V>> result = newSetMultimap(false, false);//HashMultimap.create();
         //matches.values().map()
@@ -267,7 +267,7 @@ public class SubgraphIsomorphismIndexImpl<K, G, V, T>
      * @see org.aksw.jena_sparql_api.iso.index.SubGraphIsomorphismIndex#lookup(G, boolean)
      */
     //@Override
-    public Multimap<K, InsertPosition<K, G, V, T>> lookup(BiMap<V, V> baseIso, G queryGraph, boolean exactMatch) {    	
+    public Multimap<K, InsertPosition<K, G, V, T>> lookupCore(BiMap<? extends V, ? extends V> baseIso, G queryGraph, boolean exactMatch) {    	
         Set<T> queryGraphTags = extractGraphTagsWrapper(queryGraph);
 
         Collection<InsertPosition<K, G, V, T>> positions = new LinkedList<>();

@@ -65,7 +65,7 @@ public class SubgraphIsomorphismIndexTagBased<K, G, V, T>
 	}
 
 	@Override
-	public Multimap<K, BiMap<V, V>> lookupX(G queryGraph, boolean exactMatch, BiMap<V, V> baseIso) {
+	public Multimap<K, BiMap<V, V>> lookup(G queryGraph, boolean exactMatch, BiMap<? extends V, ? extends V> baseIso) {
     	if(baseIso == null) {
     		baseIso = HashBiMap.create();
     	}

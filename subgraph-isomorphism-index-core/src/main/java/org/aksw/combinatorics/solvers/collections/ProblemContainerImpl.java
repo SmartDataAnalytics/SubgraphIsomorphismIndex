@@ -117,4 +117,12 @@ public class ProblemContainerImpl<S>
         ProblemContainerImpl<S> result = new ProblemContainerImpl<>(sizeToProblem);
         return result;
     }
+    
+    
+//    public static <R, S> ProblemContainerImpl<S> create(Collection<? extends GenericProblem<R, ?>> problems, Function<? super R, ? extends S> mapFn) {
+//        NavigableMap<Long, Collection<GenericProblem<S, ?>>> sizeToProblem = IsoUtils.indexSolutionGenerators(problems);
+//        ProblemContainerImpl<S> result = new ProblemContainerImpl<>(sizeToProblem, mapFn);
+//        return result;
+//    }
+
 }

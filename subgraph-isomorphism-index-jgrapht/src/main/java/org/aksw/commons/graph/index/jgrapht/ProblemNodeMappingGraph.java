@@ -29,12 +29,12 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
     private static final Logger logger = LoggerFactory.getLogger(ProblemNodeMappingGraph.class);
 
 
-    protected BiMap<V, V> baseSolution;
+    protected BiMap<? extends V, ? extends V> baseSolution;
     protected G viewGraph;
     protected G queryGraph;
 
-    protected Function<BiMap<V, V>, Comparator<V>> nodeComparatorFactory;
-    protected Function<BiMap<V, V>, Comparator<E>> edgeComparatorFactory;
+    protected Function<BiMap<? extends V, ? extends V>, Comparator<V>> nodeComparatorFactory;
+    protected Function<BiMap<? extends V, ? extends V>, Comparator<E>> edgeComparatorFactory;
 
     protected boolean skipIncompatibleMappings;
 
@@ -62,11 +62,11 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
 //    }
 
     public ProblemNodeMappingGraph(
-            BiMap<V, V> baseSolution,
+            BiMap<? extends V, ? extends V> baseSolution,
             G viewGraph,
             G queryGraph,
-            Function<BiMap<V, V>, Comparator<V>> nodeComparatorFactory,
-            Function<BiMap<V, V>, Comparator<E>> edgeComparatorFactory)
+            Function<BiMap<? extends V, ? extends V>, Comparator<V>> nodeComparatorFactory,
+            Function<BiMap<? extends V, ? extends V>, Comparator<E>> edgeComparatorFactory)
     {
         this(
             baseSolution, viewGraph, queryGraph,
@@ -75,11 +75,11 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
     }
 
     public ProblemNodeMappingGraph(
-            BiMap<V, V> baseSolution,
+            BiMap<? extends V, ? extends V> baseSolution,
             G viewGraph,
             G queryGraph,
-            Function<BiMap<V, V>, Comparator<V>> nodeComparatorFactory,
-            Function<BiMap<V, V>, Comparator<E>> edgeComparatorFactory,
+            Function<BiMap<? extends V, ? extends V>, Comparator<V>> nodeComparatorFactory,
+            Function<BiMap<? extends V, ? extends V>, Comparator<E>> edgeComparatorFactory,
             boolean skipIncompatibleMappings) {
         super();
         this.baseSolution = baseSolution;

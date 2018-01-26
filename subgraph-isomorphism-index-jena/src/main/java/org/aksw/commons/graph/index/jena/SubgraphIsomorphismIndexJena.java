@@ -29,7 +29,7 @@ public class SubgraphIsomorphismIndexJena {
         SubgraphIsomorphismIndexFlat<K, DirectedGraph<Node, Triple>, Node> result =
                 new SubgraphIsomorphismIndexFlat<>(
                         SetOpsJGraphTRdfJena.INSTANCE,
-                        new IsoMatcherImpl<>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator));
+                        new IsoMatcherImpl<Node, Triple, DirectedGraph<Node, Triple>>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator));
         return result;
     }
 
@@ -41,14 +41,14 @@ public class SubgraphIsomorphismIndexJena {
                         SetOpsJGraphTRdfJena.INSTANCE,
                         SubgraphIsomorphismIndexJena::extractGraphTags,
                         NodeUtils::compareRDFTerms,
-                        new IsoMatcherImpl<>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator));
+                        new IsoMatcherImpl<Node, Triple, DirectedGraph<Node, Triple>>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator));
         return result;
     }
 
     public static <K> SubgraphIsomorphismIndexTagBased<K, DirectedGraph<Node, Triple>, Node, Node> createTagBased(TagMap<K, Node> tagMap) {
     	SubgraphIsomorphismIndexTagBased<K, DirectedGraph<Node, Triple>, Node, Node> result =
                 new SubgraphIsomorphismIndexTagBased<K, DirectedGraph<Node, Triple>, Node, Node>(
-                		new IsoMatcherImpl<>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator),
+                		new IsoMatcherImpl<Node, Triple, DirectedGraph<Node, Triple>>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator),
                         SubgraphIsomorphismIndexJena::extractGraphTags,
                         tagMap
                         );

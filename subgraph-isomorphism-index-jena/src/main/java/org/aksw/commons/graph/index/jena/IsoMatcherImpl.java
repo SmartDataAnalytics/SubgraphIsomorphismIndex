@@ -6,7 +6,6 @@ import java.util.function.Function;
 import org.aksw.combinatorics.solvers.ProblemNeighborhoodAware;
 import org.aksw.commons.graph.index.core.IsoMatcher;
 import org.aksw.commons.graph.index.jgrapht.ProblemNodeMappingGraph;
-import org.apache.jena.ext.com.google.common.collect.HashBiMap;
 import org.jgrapht.Graph;
 
 import com.google.common.collect.BiMap;

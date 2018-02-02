@@ -31,16 +31,36 @@ public class PseudoGraphJenaModel
     implements Graph<RDFNode, Statement>
 {
     protected Model model;
+    protected GraphType graphType;
+    
     protected Property confinementProperty; // May be null
 
     protected transient EdgeFactory<RDFNode, Statement> edgeFactory;
 
-    public PseudoGraphJenaModel(Model model, Property predicate) {
+
+    public PseudoGraphJenaModel(Model model) {
+    	this(model, DefaultGraphType.pseudograph());
+    }
+
+    public PseudoGraphJenaModel(Model model, Property confinementProperty) {
+    	this(model, DefaultGraphType.pseudograph(), confinementProperty);
+    }
+
+    public PseudoGraphJenaModel(Model model, GraphType graphType) {
+    	this(model, graphType, null);
+    }
+
+    public PseudoGraphJenaModel(Model model, GraphType graphType, Property confinementProperty) {
+    	this(model, graphType, confinementProperty, confinementProperty);
+    }
+    
+    public PseudoGraphJenaModel(Model model, GraphType graphType, Property confinementProperty, Property insertProperty) {
         super();
         this.model = model;
-        this.confinementProperty = predicate;
-
-        edgeFactory = new EdgeFactoryJenaModel(model, predicate);
+        this.graphType = graphType;
+        this.confinementProperty = confinementProperty;
+        
+        edgeFactory = new EdgeFactoryJenaModel(model, insertProperty);
     }
 
 
@@ -225,7 +245,7 @@ public class PseudoGraphJenaModel
 
     @Override
     public GraphType getType() {
-        return DefaultGraphType.directedPseudograph();
+        return graphType; //DefaultGraphType.directedPseudograph();
     }
 
     @Override

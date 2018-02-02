@@ -29,7 +29,12 @@ public class PseudoGraphJenaGraph
     implements org.jgrapht.Graph<Node, Triple>
 {
     protected org.apache.jena.graph.Graph graph;
-
+    
+    // The graph type describing the features of the underlying RDF graph
+    // By default DefaultGraphType.directedPseudograph()
+    protected GraphType graphType;
+    
+    
    /**
      * Predicate to which to confine the underlying Jena graph. May be Node.ANY
      * to use all triples regardless to their predicate.
@@ -40,17 +45,34 @@ public class PseudoGraphJenaGraph
     protected EdgeFactory<Node, Triple> edgeFactory;
 
     public PseudoGraphJenaGraph(Graph graph) {
-        this(graph, Node.ANY, null);
+        this(graph, DefaultGraphType.directedPseudograph());
+    }
+    
+    public PseudoGraphJenaGraph(Graph graph, GraphType graphType) {
+        this(graph, graphType, Node.ANY, null);
     }
 
     public PseudoGraphJenaGraph(Graph graph, Node confinementPredicate) {
-    	this(graph, confinementPredicate, confinementPredicate);
+    	this(graph, DefaultGraphType.directedPseudograph(), confinementPredicate);
     }
 
-    // TODO I doubt there are use cases for using different confinement and insert predicates
-    public PseudoGraphJenaGraph(Graph graph, Node confinementPredicate, Node insertPredicate) {
+    public PseudoGraphJenaGraph(Graph graph, GraphType graphType, Node confinementPredicate) {
+    	this(graph, graphType, confinementPredicate, confinementPredicate);
+    }
+
+
+    /**
+     * Setting insert predicate to null prevents inserts
+     * 
+     * @param graph
+     * @param graphType
+     * @param confinementPredicate
+     * @param insertPredicate
+     */
+    public PseudoGraphJenaGraph(Graph graph, GraphType graphType, Node confinementPredicate, Node insertPredicate) {
         super();
         this.graph = graph;
+        this.graphType = graphType;
         this.confinementPredicate = confinementPredicate;
 
         edgeFactory = new EdgeFactoryJenaGraph(insertPredicate);

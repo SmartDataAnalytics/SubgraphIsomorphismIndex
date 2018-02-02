@@ -15,13 +15,17 @@ public class EdgeFactoryJenaModel
 
     public EdgeFactoryJenaModel(Model model, Property property) {
         super();
+        this.model = model;
         this.property = property;
     }
 
     @Override
     public Statement createEdge(RDFNode sourceVertex, RDFNode targetVertex) {
+//        if(property == null) {
+//        	throw new UnsupportedOperationException("Cannot create edge if property is null");
+//        }
+
         Statement result = model.createStatement(sourceVertex.asResource(), property, targetVertex);
-        model.add(result);
         return result;
     }
 }

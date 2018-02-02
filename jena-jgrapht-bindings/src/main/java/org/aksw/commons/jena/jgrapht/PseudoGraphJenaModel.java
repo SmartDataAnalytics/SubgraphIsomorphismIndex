@@ -14,6 +14,8 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
+import org.jgrapht.GraphType;
+import org.jgrapht.graph.DefaultGraphType;
 
 
 /**
@@ -121,6 +123,11 @@ public class PseudoGraphJenaModel
     }
 
     @Override
+    public int degreeOf(RDFNode vertex) {
+        return inDegreeOf(vertex) + outDegreeOf(vertex);
+    }
+
+    @Override
     public Set<Statement> edgesOf(RDFNode vertex) {
         Set<Statement> result = new HashSet<>();
         listStatements(result, model, vertex, predicate, null);
@@ -199,6 +206,11 @@ public class PseudoGraphJenaModel
     }
 
     @Override
+    public GraphType getType() {
+        return DefaultGraphType.directedPseudograph();
+    }
+
+    @Override
     public double getEdgeWeight(Statement e) {
         return 1;
     }
@@ -225,6 +237,11 @@ public class PseudoGraphJenaModel
     public Set<Statement> outgoingEdgesOf(RDFNode vertex) {
         Set<Statement> result = listStatements(model, vertex, predicate, null);
         return result;
+    }
+
+    @Override
+    public void setEdgeWeight(Statement statement, double weight) {
+        throw new UnsupportedOperationException("RDF graph is not weighted");
     }
 
     public static Set<Statement> listStatements(Model model, RDFNode sourceVertex, RDFNode predicate, RDFNode targetVertex) {

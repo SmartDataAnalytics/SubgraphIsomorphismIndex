@@ -12,6 +12,8 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
+import org.jgrapht.GraphType;
+import org.jgrapht.graph.DefaultGraphType;
 
 
 /**
@@ -133,6 +135,11 @@ public class PseudoGraphJenaGraph
     }
 
     @Override
+    public int degreeOf(Node vertex) {
+        return inDegreeOf(vertex) + outDegreeOf(vertex);
+    }
+
+    @Override
     public Set<Triple> edgesOf(Node vertex) {
         Set<Triple> result = new HashSet<>();
         find(graph, vertex, confinementPredicate, Node.ANY).forEachRemaining(result::add);
@@ -213,12 +220,22 @@ public class PseudoGraphJenaGraph
         return e.getObject();
     }
 
+    @Override
+    public GraphType getType() {
+        return DefaultGraphType.directedPseudograph();
+    }
+
     /**
      * FIXME: We could delegate requests to edge weights to a lambda which e.g. gets this value from the RDF
      */
     @Override
     public double getEdgeWeight(Triple e) {
         return 1;
+    }
+
+    @Override
+    public void setEdgeWeight(Triple triple, double weight) {
+        throw new UnsupportedOperationException("RDF graph is not weighted");
     }
 
     @Override

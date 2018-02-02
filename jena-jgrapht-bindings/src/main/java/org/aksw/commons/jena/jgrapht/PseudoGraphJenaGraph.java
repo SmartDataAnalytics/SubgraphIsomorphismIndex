@@ -250,7 +250,7 @@ public class PseudoGraphJenaGraph
 
     @Override
     public GraphType getType() {
-        return DefaultGraphType.directedPseudograph();
+        return graphType;
     }
 
     /**

@@ -6,6 +6,7 @@ target
 
 release.properties
 pom.xml.versionBackup
+release.properties
 
 deptree.txt
 LSQ-SWDF-test.ttl

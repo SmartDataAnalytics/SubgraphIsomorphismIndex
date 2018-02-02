@@ -46,10 +46,10 @@ public class SubgraphIsomorphismIndexWrapper<K, O, G, V>
 //    }
 
     @Override
-    public Multimap<K, BiMap<V, V>> lookupX(O queryObj, boolean exactMatch) {
+    public Multimap<K, BiMap<V, V>> lookup(O queryObj, boolean exactMatch, BiMap<? extends V, ? extends V> baseIso) {
         G graph = objectToGraph.apply(queryObj);
 
-        Multimap<K, BiMap<V, V>> result = index.lookupX(graph, exactMatch);
+        Multimap<K, BiMap<V, V>> result = index.lookup(graph, exactMatch, baseIso);
         return result;
     }
 
@@ -70,4 +70,9 @@ public class SubgraphIsomorphismIndexWrapper<K, O, G, V>
     public static <K, O, G, V> SubgraphIsomorphismIndex<K, O, V> wrap(SubgraphIsomorphismIndex<K, G, V> base, Function<O, G> objectToGraph) {
         return new SubgraphIsomorphismIndexWrapper<>(base, objectToGraph);
     }
+
+	@Override
+	public O get(K key) {
+		throw new UnsupportedOperationException();
+	}
 }

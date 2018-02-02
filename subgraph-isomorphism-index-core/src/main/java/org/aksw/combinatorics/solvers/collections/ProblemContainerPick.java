@@ -2,7 +2,7 @@ package org.aksw.combinatorics.solvers.collections;
 
 import java.util.Map.Entry;
 
-import org.aksw.combinatorics.solvers.Problem;
+import org.aksw.combinatorics.solvers.GenericProblem;
 
 /***
  * A helper class used by ProblemContainer.
@@ -21,18 +21,18 @@ import org.aksw.combinatorics.solvers.Problem;
  * @param <S> The solution type
  */
 public class ProblemContainerPick<S>
-    implements Entry<Problem<S>, ProblemContainer<S>>
+    implements Entry<GenericProblem<S, ?>, ProblemContainer<S>>
 {
-    protected Problem<S> picked;
+    protected GenericProblem<S, ?> picked;
     protected ProblemContainer<S> remaining;
 
-    public ProblemContainerPick(Problem<S> picked,
+    public ProblemContainerPick(GenericProblem<S, ?> picked,
             ProblemContainer<S> remaining) {
         super();
         this.picked = picked;
         this.remaining = remaining;
     }
-    public Problem<S> getPicked() {
+    public GenericProblem<S, ?> getPicked() {
         return picked;
     }
     public ProblemContainer<S> getRemaining() {
@@ -40,7 +40,7 @@ public class ProblemContainerPick<S>
     }
 
     @Override
-    public Problem<S> getKey() {
+    public GenericProblem<S, ?> getKey() {
         return picked;
     }
     @Override

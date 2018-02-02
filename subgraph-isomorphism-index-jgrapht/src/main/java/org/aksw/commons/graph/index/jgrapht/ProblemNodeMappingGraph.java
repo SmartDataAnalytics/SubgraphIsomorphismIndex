@@ -4,11 +4,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.aksw.combinatorics.solvers.ProblemMappingKPermutationsOfN;
 import org.aksw.combinatorics.solvers.ProblemNeighborhoodAware;
+import org.aksw.commons.graph.index.core.MapUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphMapping;
 import org.jgrapht.alg.isomorphism.IsomorphicGraphMapping;
@@ -27,12 +29,12 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
     private static final Logger logger = LoggerFactory.getLogger(ProblemNodeMappingGraph.class);
 
 
-    protected BiMap<V, V> baseSolution;
+    protected BiMap<? extends V, ? extends V> baseSolution;
     protected G viewGraph;
     protected G queryGraph;
 
-    protected Function<BiMap<V, V>, Comparator<V>> nodeComparatorFactory;
-    protected Function<BiMap<V, V>, Comparator<E>> edgeComparatorFactory;
+    protected Function<BiMap<? extends V, ? extends V>, Comparator<V>> nodeComparatorFactory;
+    protected Function<BiMap<? extends V, ? extends V>, Comparator<E>> edgeComparatorFactory;
 
     protected boolean skipIncompatibleMappings;
 
@@ -60,11 +62,11 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
 //    }
 
     public ProblemNodeMappingGraph(
-            BiMap<V, V> baseSolution,
+            BiMap<? extends V, ? extends V> baseSolution,
             G viewGraph,
             G queryGraph,
-            Function<BiMap<V, V>, Comparator<V>> nodeComparatorFactory,
-            Function<BiMap<V, V>, Comparator<E>> edgeComparatorFactory)
+            Function<BiMap<? extends V, ? extends V>, Comparator<V>> nodeComparatorFactory,
+            Function<BiMap<? extends V, ? extends V>, Comparator<E>> edgeComparatorFactory)
     {
         this(
             baseSolution, viewGraph, queryGraph,
@@ -73,11 +75,11 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
     }
 
     public ProblemNodeMappingGraph(
-            BiMap<V, V> baseSolution,
+            BiMap<? extends V, ? extends V> baseSolution,
             G viewGraph,
             G queryGraph,
-            Function<BiMap<V, V>, Comparator<V>> nodeComparatorFactory,
-            Function<BiMap<V, V>, Comparator<E>> edgeComparatorFactory,
+            Function<BiMap<? extends V, ? extends V>, Comparator<V>> nodeComparatorFactory,
+            Function<BiMap<? extends V, ? extends V>, Comparator<E>> edgeComparatorFactory,
             boolean skipIncompatibleMappings) {
         super();
         this.baseSolution = baseSolution;
@@ -104,9 +106,12 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
 
         Iterator<GraphMapping<V, E>> it = inspector.getMappings();
 
-        Stream<GraphMapping<V, E>> baseStream = Lists.newArrayList(it).stream();
         // TODO WHY DOES THIS TRULY STREAMING VERSION FAIL WITH ODD DUPLICATE ITEMS AND NPE???
-//        Stream<GraphMapping<V, E>> baseStream = Streams.stream(it);
+//      Stream<GraphMapping<V, E>> baseStream = Streams.stream(it);
+
+        List<GraphMapping<V, E>> tmp = Lists.newArrayList(it);
+        //System.out.println("GraphMappings " + tmp.size() + ": " + tmp);
+        Stream<GraphMapping<V, E>> baseStream = tmp.stream();
 
 
         Stream<BiMap<V, V>> result = baseStream//Streams.stream(it)
@@ -134,7 +139,7 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
                             if(skipIncompatibleMappings) {
                                 // If the mapping is inconsistent with the baseMapping, skip it
                                 // but log a warnign
-                                logger.warn("Skipping incompatible mapping");
+                                //logger.warn("Skipping incompatible mapping");
                                 nodeMap = null;
                                 break;
                             } else {
@@ -143,9 +148,12 @@ public class ProblemNodeMappingGraph<V, E, G extends Graph<V, E>, T>
                         }
                     }
                 }
+                //System.out.println("Created node map: " + nodeMap);
                 return nodeMap;
             })
-            .filter(x -> x != null);
+            .filter(x -> x != null)
+			.filter(iso -> MapUtils.isCompatible(baseSolution, iso));
+
 
         return result;
     }

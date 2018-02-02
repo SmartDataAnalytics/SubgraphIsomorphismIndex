@@ -16,6 +16,8 @@ hs_err*
 outfile.ttl
 out.ttl
 
+bin
+
 # some file names for testing
 a.nt
 a.ttl

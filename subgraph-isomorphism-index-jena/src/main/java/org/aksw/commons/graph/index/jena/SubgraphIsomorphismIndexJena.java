@@ -16,7 +16,6 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.util.NodeUtils;
 import org.apache.jena.sparql.util.graph.GraphUtils;
-import org.jgrapht.DirectedGraph;
 import org.jgrapht.Graph;
 
 import com.google.common.collect.BiMap;
@@ -25,30 +24,30 @@ import com.google.common.collect.Streams;
 public class SubgraphIsomorphismIndexJena {
 
     // TODO Move to util class
-    public static <K> SubgraphIsomorphismIndex<K, DirectedGraph<Node, Triple>, Node> createFlat() {
-        SubgraphIsomorphismIndexFlat<K, DirectedGraph<Node, Triple>, Node> result =
+    public static <K> SubgraphIsomorphismIndex<K, Graph<Node, Triple>, Node> createFlat() {
+        SubgraphIsomorphismIndexFlat<K, Graph<Node, Triple>, Node> result =
                 new SubgraphIsomorphismIndexFlat<>(
                         SetOpsJGraphTRdfJena.INSTANCE,
-                        new IsoMatcherImpl<Node, Triple, DirectedGraph<Node, Triple>>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator));
+                        new IsoMatcherImpl<Node, Triple, Graph<Node, Triple>>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator));
         return result;
     }
 
 	
     // TODO Move to util class
-    public static <K> SubgraphIsomorphismIndex<K, DirectedGraph<Node, Triple>, Node> create() {
-        SubgraphIsomorphismIndexImpl<K, DirectedGraph<Node, Triple>, Node, Node> result =
+    public static <K> SubgraphIsomorphismIndex<K, Graph<Node, Triple>, Node> create() {
+        SubgraphIsomorphismIndexImpl<K, Graph<Node, Triple>, Node, Node> result =
                 new SubgraphIsomorphismIndexImpl<>(
                         SetOpsJGraphTRdfJena.INSTANCE,
                         SubgraphIsomorphismIndexJena::extractGraphTags,
                         NodeUtils::compareRDFTerms,
-                        new IsoMatcherImpl<Node, Triple, DirectedGraph<Node, Triple>>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator));
+                        new IsoMatcherImpl<Node, Triple, Graph<Node, Triple>>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator));
         return result;
     }
 
-    public static <K> SubgraphIsomorphismIndexTagBased<K, DirectedGraph<Node, Triple>, Node, Node> createTagBased(TagMap<K, Node> tagMap) {
-    	SubgraphIsomorphismIndexTagBased<K, DirectedGraph<Node, Triple>, Node, Node> result =
-                new SubgraphIsomorphismIndexTagBased<K, DirectedGraph<Node, Triple>, Node, Node>(
-                		new IsoMatcherImpl<Node, Triple, DirectedGraph<Node, Triple>>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator),
+    public static <K> SubgraphIsomorphismIndexTagBased<K, Graph<Node, Triple>, Node, Node> createTagBased(TagMap<K, Node> tagMap) {
+    	SubgraphIsomorphismIndexTagBased<K, Graph<Node, Triple>, Node, Node> result =
+                new SubgraphIsomorphismIndexTagBased<K, Graph<Node, Triple>, Node, Node>(
+                		new IsoMatcherImpl<Node, Triple, Graph<Node, Triple>>(SubgraphIsomorphismIndexJena::createNodeComparator, SubgraphIsomorphismIndexJena::createEdgeComparator),
                         SubgraphIsomorphismIndexJena::extractGraphTags,
                         tagMap
                         );

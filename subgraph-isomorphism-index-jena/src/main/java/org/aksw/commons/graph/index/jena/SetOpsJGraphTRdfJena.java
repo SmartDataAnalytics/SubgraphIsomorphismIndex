@@ -7,20 +7,20 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.graph.NodeTransform;
 import org.apache.jena.sparql.graph.NodeTransformLib;
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.graph.DirectedSubgraph;
-import org.jgrapht.graph.SimpleDirectedGraph;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.AsSubgraph;
+import org.jgrapht.graph.SimpleGraph;
 
 import com.google.common.base.MoreObjects;
 
 public class SetOpsJGraphTRdfJena
-    extends SetOpsJGraphTBase<Node, Triple, DirectedGraph<Node, Triple>>
+    extends SetOpsJGraphTBase<Node, Triple, Graph<Node, Triple>>
 {
     public static final SetOpsJGraphTRdfJena INSTANCE = new SetOpsJGraphTRdfJena();
 
     @Override
-    public DirectedGraph<Node, Triple> createNew() {
-        return new SimpleDirectedGraph<>(Triple.class);
+    public Graph<Node, Triple> createNew() {
+        return new SimpleGraph<>(Triple.class);
     }
 
     @Override
@@ -36,11 +36,11 @@ public class SetOpsJGraphTRdfJena
     }
 
     @Override
-    public DirectedGraph<Node, Triple> intersect(DirectedGraph<Node, Triple> baseGraph, DirectedGraph<Node, Triple> removalGraph) {
-        DirectedGraph<Node, Triple> result = new DirectedSubgraph<>(baseGraph, removalGraph.vertexSet(), removalGraph.edgeSet());
+    public Graph<Node, Triple> intersect(Graph<Node, Triple> baseGraph, Graph<Node, Triple> removalGraph) {
+        Graph<Node, Triple> result = new AsSubgraph<>(baseGraph, removalGraph.vertexSet(), removalGraph.edgeSet());
 
         //Materialize the intersection
-        //DirectedGraph<Node, Triple> tmp = createNew();
+        //Graph<Node, Triple> tmp = createNew();
         //Graphs.addGraph(tmp, result);
         //result = tmp
 

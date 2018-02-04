@@ -6,6 +6,7 @@ target
 
 release.properties
 pom.xml.versionBackup
+pom.xml.versionsBackup
 release.properties
 
 deptree.txt
@@ -15,6 +16,8 @@ hs_err*
 *.releaseBackup
 outfile.ttl
 out.ttl
+
+bin
 
 # some file names for testing
 a.nt

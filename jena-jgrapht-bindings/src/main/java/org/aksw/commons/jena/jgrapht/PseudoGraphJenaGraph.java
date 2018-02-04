@@ -10,8 +10,9 @@ import org.apache.jena.graph.GraphUtil;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.util.iterator.ExtendedIterator;
-import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
+import org.jgrapht.GraphType;
+import org.jgrapht.graph.DefaultGraphType;
 
 
 /**
@@ -25,26 +26,53 @@ import org.jgrapht.EdgeFactory;
  *
  */
 public class PseudoGraphJenaGraph
-    implements DirectedGraph<Node, Triple>
+    implements org.jgrapht.Graph<Node, Triple>
 {
     protected org.apache.jena.graph.Graph graph;
-
+    
+    // The graph type describing the features of the underlying RDF graph
+    // By default DefaultGraphType.directedPseudograph()
+    protected GraphType graphType;
+    
+    
    /**
      * Predicate to which to confine the underlying Jena graph. May be Node.ANY
      * to use all triples regardless to their predicate.
      *
      */
-    protected Node confinementPredicate; // May be Node.ANY
+    protected Node confinementPredicate; // May be Node.ANY - should not be null
 
     protected EdgeFactory<Node, Triple> edgeFactory;
 
     public PseudoGraphJenaGraph(Graph graph) {
-        this(graph, Node.ANY, null);
+        this(graph, DefaultGraphType.directedPseudograph());
+    }
+    
+    public PseudoGraphJenaGraph(Graph graph, GraphType graphType) {
+        this(graph, graphType, Node.ANY, null);
     }
 
-    public PseudoGraphJenaGraph(Graph graph, Node confinementPredicate, Node insertPredicate) {
+    public PseudoGraphJenaGraph(Graph graph, Node confinementPredicate) {
+    	this(graph, DefaultGraphType.directedPseudograph(), confinementPredicate);
+    }
+
+    public PseudoGraphJenaGraph(Graph graph, GraphType graphType, Node confinementPredicate) {
+    	this(graph, graphType, confinementPredicate, confinementPredicate);
+    }
+
+
+    /**
+     * Setting insert predicate to null prevents inserts
+     * 
+     * @param graph
+     * @param graphType
+     * @param confinementPredicate
+     * @param insertPredicate
+     */
+    public PseudoGraphJenaGraph(Graph graph, GraphType graphType, Node confinementPredicate, Node insertPredicate) {
         super();
         this.graph = graph;
+        this.graphType = graphType;
         this.confinementPredicate = confinementPredicate;
 
         edgeFactory = new EdgeFactoryJenaGraph(insertPredicate);
@@ -53,7 +81,7 @@ public class PseudoGraphJenaGraph
 
     @Override
     public Set<Triple> getAllEdges(Node sourceVertex, Node targetVertex) {
-        return find(graph, sourceVertex, confinementPredicate, targetVertex).toSet();
+        return find(sourceVertex, confinementPredicate, targetVertex).toSet();
     }
 
     @Override
@@ -97,46 +125,53 @@ public class PseudoGraphJenaGraph
         if(result) {
             graph.add(e);
         }
-        return true;
+        return result;
     }
 
     @Override
     public boolean addVertex(Node v) {
-        // Silently ignore calls to this
-        return false;
+    	// Approximation of the semantics - as long as there is no Triple with the given Node v,
+    	// addVertex will return true for that v.
+    	boolean result = !containsVertex(v);
+    	return result;
     }
 
     @Override
     public boolean containsEdge(Node sourceVertex, Node targetVertex) {
-        boolean result = find(graph, sourceVertex, confinementPredicate, targetVertex).hasNext();
+        boolean result = find(sourceVertex, confinementPredicate, targetVertex).hasNext();
         return result;
     }
 
     @Override
     public boolean containsEdge(Triple e) {
-        boolean result = find(graph, e.getSubject(), e.getPredicate(), e.getObject()).hasNext();
+        boolean result = find(e.getSubject(), e.getPredicate(), e.getObject()).hasNext();
         return result;
     }
 
     @Override
     public boolean containsVertex(Node v) {
         boolean result =
-                find(graph, v, confinementPredicate, Node.ANY).hasNext() ||
-                find(graph, Node.ANY, confinementPredicate, v).hasNext();
+                find(v, confinementPredicate, Node.ANY).hasNext() ||
+                find(Node.ANY, confinementPredicate, v).hasNext();
         return result;
     }
 
     @Override
     public Set<Triple> edgeSet() {
-        Set<Triple> result = find(graph, Node.ANY, confinementPredicate, Node.ANY).toSet();
+        Set<Triple> result = find(Node.ANY, confinementPredicate, Node.ANY).toSet();
         return result;
+    }
+
+    @Override
+    public int degreeOf(Node vertex) {
+        return inDegreeOf(vertex) + outDegreeOf(vertex);
     }
 
     @Override
     public Set<Triple> edgesOf(Node vertex) {
         Set<Triple> result = new HashSet<>();
-        find(graph, vertex, confinementPredicate, Node.ANY).forEachRemaining(result::add);
-        find(graph, Node.ANY, confinementPredicate, vertex).forEachRemaining(result::add);
+        find(vertex, confinementPredicate, Node.ANY).forEachRemaining(result::add);
+        find(Node.ANY, confinementPredicate, vertex).forEachRemaining(result::add);
 
         return result;
     }
@@ -196,9 +231,9 @@ public class PseudoGraphJenaGraph
     @Override
     public Set<Node> vertexSet() {
         Set<Node> result = new HashSet<>();
-        find(graph, Node.ANY, confinementPredicate, Node.ANY).forEachRemaining(triple -> {
-                result.add(triple.getSubject());
-                result.add(triple.getObject());
+        find(Node.ANY, confinementPredicate, Node.ANY).forEachRemaining(triple -> {
+            result.add(triple.getSubject());
+            result.add(triple.getObject());
         });
         return result;
     }
@@ -213,12 +248,22 @@ public class PseudoGraphJenaGraph
         return e.getObject();
     }
 
+    @Override
+    public GraphType getType() {
+        return graphType;
+    }
+
     /**
      * FIXME: We could delegate requests to edge weights to a lambda which e.g. gets this value from the RDF
      */
     @Override
     public double getEdgeWeight(Triple e) {
         return 1;
+    }
+
+    @Override
+    public void setEdgeWeight(Triple triple, double weight) {
+        throw new UnsupportedOperationException("RDF graph is not weighted");
     }
 
     @Override
@@ -229,7 +274,7 @@ public class PseudoGraphJenaGraph
 
     @Override
     public Set<Triple> incomingEdgesOf(Node vertex) {
-        Set<Triple> result = find(graph, Node.ANY, confinementPredicate, vertex).toSet();
+        Set<Triple> result = find(Node.ANY, confinementPredicate, vertex).toSet();
         return result;
     }
 
@@ -241,13 +286,13 @@ public class PseudoGraphJenaGraph
 
     @Override
     public Set<Triple> outgoingEdgesOf(Node vertex) {
-        Set<Triple> result = find(graph, vertex, confinementPredicate, Node.ANY).toSet();
+        Set<Triple> result = find(vertex, confinementPredicate, Node.ANY).toSet();
         return result;
     }
-
-
+    
+  
     /**
-     * A delegate to find - single point for adding any post processing should it become necessary
+     * A delegate to graph.find - single point for adding any custom find semantics should it become necessary
      *
      * @param graph
      * @param s
@@ -255,17 +300,9 @@ public class PseudoGraphJenaGraph
      * @param o
      * @return
      */
-    public static ExtendedIterator<Triple> find(Graph graph, Node s, Node p, Node o) {
-//  Filter used to allow matches by variable names - vars are now handled by GraphVar
-//        ExtendedIterator<Triple> result = graph.find(s, p, o).filterKeep(t -> {
-//            boolean r =
-//                    (s.equals(Node.ANY) ? true : t.getSubject().equals(s)) &&
-//                    (p.equals(Node.ANY) ? true : t.getPredicate().equals(p)) &&
-//                    (o.equals(Node.ANY) ? true : t.getObject().equals(o));
-//            return r;
-//        });
-
-        return graph.find(s, p, o);
+    public ExtendedIterator<Triple> find(Node s, Node p, Node o) {
+    	ExtendedIterator<Triple> result = graph.find(s, p, o);
+    	return result;
     }
 
     @Override

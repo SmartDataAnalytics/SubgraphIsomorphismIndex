@@ -2,18 +2,20 @@ package org.aksw.commons.jena.jgrapht;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
-import org.jgrapht.DirectedGraph;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.rdf.model.impl.StmtIteratorImpl;
 import org.jgrapht.EdgeFactory;
+import org.jgrapht.Graph;
+import org.jgrapht.GraphType;
+import org.jgrapht.graph.DefaultGraphType;
 
 
 /**
@@ -26,31 +28,47 @@ import org.jgrapht.EdgeFactory;
  */
 
 public class PseudoGraphJenaModel
-    implements DirectedGraph<RDFNode, Statement>
+    implements Graph<RDFNode, Statement>
 {
     protected Model model;
-    protected Property predicate; // May be RDFNode.ANY
+    protected GraphType graphType;
+    
+    protected Property confinementProperty; // May be null
 
     protected transient EdgeFactory<RDFNode, Statement> edgeFactory;
 
-    public PseudoGraphJenaModel(Model model, Property predicate) {
+
+    public PseudoGraphJenaModel(Model model) {
+    	this(model, DefaultGraphType.pseudograph());
+    }
+
+    public PseudoGraphJenaModel(Model model, Property confinementProperty) {
+    	this(model, DefaultGraphType.pseudograph(), confinementProperty);
+    }
+
+    public PseudoGraphJenaModel(Model model, GraphType graphType) {
+    	this(model, graphType, null);
+    }
+
+    public PseudoGraphJenaModel(Model model, GraphType graphType, Property confinementProperty) {
+    	this(model, graphType, confinementProperty, confinementProperty);
+    }
+    
+    public PseudoGraphJenaModel(Model model, GraphType graphType, Property confinementProperty, Property insertProperty) {
         super();
         this.model = model;
-        this.predicate = predicate;
-
-        edgeFactory = new EdgeFactoryJenaModel(model, predicate);
+        this.graphType = graphType;
+        this.confinementProperty = confinementProperty;
+        
+        edgeFactory = new EdgeFactoryJenaModel(model, insertProperty);
     }
 
 
     @Override
     public Set<Statement> getAllEdges(RDFNode sourceVertex, RDFNode targetVertex) {
-        Set<Statement> result = sourceVertex.isResource()
-                ? model.listStatements(sourceVertex.asResource(), predicate, targetVertex).toSet()
-                : Collections.emptySet()
-                ;
+        Set<Statement> result = listStatements(sourceVertex, confinementProperty, targetVertex).toSet();
 
         return result;
-        //return model.find(sourceVertex, predicate, targetVertex).toSet();
     }
 
     @Override
@@ -68,35 +86,46 @@ public class PseudoGraphJenaModel
 
     @Override
     public Statement addEdge(RDFNode sourceVertex, RDFNode targetVertex) {
-        Statement result;
-        if(predicate == null || predicate.asNode().equals(Node.ANY)) {
-            throw new UnsupportedOperationException("Cannot insert edge if the predicate is RDFNode.ANY");
-        } else {
-            result = model.createStatement(sourceVertex.asResource(), predicate, targetVertex);
-            model.add(result);
-        }
+    	Statement result = edgeFactory.createEdge(sourceVertex, targetVertex);        	
+        model.add(result);
+
         return result;
     }
 
     @Override
     public boolean addEdge(RDFNode sourceVertex, RDFNode targetVertex, Statement e) {
+        boolean isValid = e.getSubject().equals(sourceVertex) && e.getObject().equals(targetVertex);
+        if(!isValid) {
+            throw new RuntimeException("Source and/or target vertex does not match those of the triple: " + sourceVertex + " " + targetVertex + " " + e);
+        }
+
+        if(confinementProperty != null && !e.getPredicate().equals(confinementProperty)) {
+            throw new RuntimeException("Graph is confined to predicate " + confinementProperty + " therefore cannot add edge with predicate " + e);
+        }
+
         boolean result = !model.contains(e);
         if(result) {
             model.add(e);
         }
-        return true;
+    	
+        return result;
     }
 
     @Override
     public boolean addVertex(RDFNode v) {
-        // Silently ignore calls to this
-        return false;
+    	// Approximation of the semantics - as long as there is no Statement with the given RDFNode v,
+    	// addVertex will return true for that v.
+    	boolean result = !containsVertex(v);
+    	return result;
     }
 
     @Override
     public boolean containsEdge(RDFNode sourceVertex, RDFNode targetVertex) {
         // TODO Not sure if contains works with RDFNode.ANY - may have to use !.find().toSet().isEmpyt()
-        boolean result = sourceVertex != null && sourceVertex.isResource() && model.contains(sourceVertex.asResource(), predicate, targetVertex);
+        boolean result = sourceVertex != null &&
+        		sourceVertex.isResource() &&
+        		model.contains(sourceVertex.asResource(), confinementProperty, targetVertex);
+
         return result;
     }
 
@@ -109,79 +138,95 @@ public class PseudoGraphJenaModel
     @Override
     public boolean containsVertex(RDFNode v) {
         boolean result =
-                (v != null && v.isResource() && model.contains(v.asResource(), null, (RDFNode)null)) ||
+                (v != null && v.isResource() &&
+                model.contains(v.asResource(), null, (RDFNode)null)) ||
                 model.contains(null, null, v);
+
         return result;
     }
 
     @Override
     public Set<Statement> edgeSet() {
-        Set<Statement> result = listStatements(model, null, predicate, null);
+        Set<Statement> result = listStatements(null, confinementProperty, null).toSet();
         return result;
     }
 
     @Override
-    public Set<Statement> edgesOf(RDFNode vertex) {
-        Set<Statement> result = new HashSet<>();
-        listStatements(result, model, vertex, predicate, null);
-        listStatements(result, model, vertex, predicate, vertex);
+    public int degreeOf(RDFNode vertex) {
+        return inDegreeOf(vertex) + outDegreeOf(vertex);
+    }
 
+    @Override
+    public Set<Statement> edgesOf(RDFNode vertex) {
+        Set<Statement> result =
+        		listStatements(vertex, confinementProperty, null).andThen(
+        		listStatements(null, confinementProperty, vertex)).toSet();
 
         return result;
     }
 
     @Override
     public boolean removeAllEdges(Collection<? extends Statement> edges) {
-        for(Statement edge : edges) {
-            model.remove(edge);
-        }
-        return true;
+        boolean result = edges.stream().map(this::removeEdge).reduce(false, (r, e) -> r || e);
+    	
+        return result;
     }
 
     @Override
     public Set<Statement> removeAllEdges(RDFNode sourceVertex, RDFNode targetVertex) {
-        model.remove(sourceVertex.asResource(), predicate, targetVertex);
-        return null;
+    	Set<Statement> result = listStatements(sourceVertex, confinementProperty, targetVertex).toSet();
+    	result.forEach(model::remove);
+    	
+    	return result;
     }
 
     @Override
     public boolean removeAllVertices(Collection<? extends RDFNode> vertices) {
-        // TODO Auto-generated method stub
-        return false;
+    	boolean result = vertices.stream().map(this::removeVertex).reduce(false, (r, v) -> r || v);
+    	return result;
     }
 
     @Override
     public Statement removeEdge(RDFNode sourceVertex, RDFNode targetVertex) {
-        //Model m = model.createStatement(sourceVertex.asResource(), predicate, targetVertex);
-        //Statement result = new Statement(sourceVertex.asResource(), predicate, targetVertex);
-        model.remove(sourceVertex.asResource(), predicate, targetVertex);
-//    	model.remove(result.get, p, o);
-//        return true;
-        return null;
+    	Statement result = getEdge(sourceVertex, targetVertex);
+    	
+    	if(result != null) {
+    		model.remove(result);
+    	}
+
+    	return result;
     }
 
     @Override
     public boolean removeEdge(Statement e) {
-        model.remove(e.getSubject(), e.getPredicate(), e.getObject());
-        return true;
+    	boolean result = model.contains(e);
+    	
+    	if(result) {
+    		model.remove(e);
+    	}
+    	
+        return result;
     }
 
 
     @Override
     public boolean removeVertex(RDFNode v) {
-        if(v.isResource()) {
-            model.remove(v.asResource(), predicate, (RDFNode)null);
+    	// Null handling is delegated to model
+    	boolean result = model.containsResource(v);
+        
+    	if(v != null && v.isResource()) {
+            model.remove(v.asResource(), confinementProperty, (RDFNode)null);
         }
 
-        model.remove(null, predicate, v);
-        return true;
+        model.remove(null, confinementProperty, v);
+        return result;
     }
 
 
     @Override
     public Set<RDFNode> vertexSet() {
-        Set<RDFNode> result = new HashSet<>();
-        model.listStatements(null, predicate, (RDFNode)null).forEachRemaining(stmt -> {
+        Set<RDFNode> result = new LinkedHashSet<>();
+        model.listStatements(null, confinementProperty, (RDFNode)null).forEachRemaining(stmt -> {
                 result.add(stmt.getSubject());
                 result.add(stmt.getObject());
         });
@@ -199,6 +244,11 @@ public class PseudoGraphJenaModel
     }
 
     @Override
+    public GraphType getType() {
+        return graphType; //DefaultGraphType.directedPseudograph();
+    }
+
+    @Override
     public double getEdgeWeight(Statement e) {
         return 1;
     }
@@ -211,7 +261,7 @@ public class PseudoGraphJenaModel
 
     @Override
     public Set<Statement> incomingEdgesOf(RDFNode vertex) {
-        Set<Statement> result = listStatements(model, null, predicate, vertex);
+        Set<Statement> result = listStatements(null, confinementProperty, vertex).toSet();
         return result;
     }
 
@@ -223,38 +273,37 @@ public class PseudoGraphJenaModel
 
     @Override
     public Set<Statement> outgoingEdgesOf(RDFNode vertex) {
-        Set<Statement> result = listStatements(model, vertex, predicate, null);
+        Set<Statement> result = listStatements(vertex, confinementProperty, null).toSet();
         return result;
     }
 
-    public static Set<Statement> listStatements(Model model, RDFNode sourceVertex, RDFNode predicate, RDFNode targetVertex) {
-        Set<Statement> result = new LinkedHashSet<>();
-        listStatements(result, model, sourceVertex, predicate, targetVertex);
+    @Override
+    public void setEdgeWeight(Statement statement, double weight) {
+        throw new UnsupportedOperationException("RDF graph is not weighted");
+    }
+
+    public StmtIterator listStatements(RDFNode sourceVertex, Property property, RDFNode targetVertex) {    	
+    	StmtIterator result = null;
+
+    	// If the sourceVertex is a Resource or null - as required by the Model API, use Model::listStatements
+    	// - otherwise return an empty iterator;
+    	if(sourceVertex == null || sourceVertex.isResource()) {
+        	Resource s = sourceVertex == null ? null : sourceVertex.asResource();
+    		result = model.listStatements(s, property, targetVertex);
+    	} else {
+    		result = new StmtIteratorImpl(Collections.<Statement>emptySet().iterator());
+    	}
+     	
         return result;
+	
     }
-
-    public static void listStatements(Collection<Statement> result, Model model, RDFNode sourceVertex, RDFNode predicate, RDFNode targetVertex) {
-
-        if(sourceVertex != null && !sourceVertex.isURIResource()) {
-            result = Collections.emptySet();
-        } else if(predicate != null && predicate.canAs(Property.class)) {
-            result = Collections.emptySet();
-        } else {
-            Resource s = sourceVertex == null ? null : sourceVertex.asResource();
-            Property p = predicate == null ? null : predicate.as(Property.class);
-
-            result = model.listStatements(s, p, targetVertex).toSet();
-        }
-
-    }
-
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((model == null) ? 0 : model.hashCode());
-        result = prime * result + ((predicate == null) ? 0 : predicate.hashCode());
+        result = prime * result + ((confinementProperty == null) ? 0 : confinementProperty.hashCode());
         return result;
     }
 
@@ -273,10 +322,10 @@ public class PseudoGraphJenaModel
                 return false;
         } else if (!model.equals(other.model))
             return false;
-        if (predicate == null) {
-            if (other.predicate != null)
+        if (confinementProperty == null) {
+            if (other.confinementProperty != null)
                 return false;
-        } else if (!predicate.equals(other.predicate))
+        } else if (!confinementProperty.equals(other.confinementProperty))
             return false;
         return true;
     }
@@ -284,6 +333,6 @@ public class PseudoGraphJenaModel
 
     @Override
     public String toString() {
-        return "PseudoGraphJena [model=" + model + ", predicate=" + predicate + "]";
+        return "PseudoGraphJena [model=" + model + ", predicate=" + confinementProperty + "]";
     }
 }

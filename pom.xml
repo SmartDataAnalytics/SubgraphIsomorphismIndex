@@ -4,7 +4,7 @@
 
     <groupId>org.aksw.commons</groupId>
     <artifactId>subgraph-isomorphism-index-parent</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 
     <packaging>pom</packaging>
 
@@ -50,7 +50,6 @@
     </modules>
 
     <properties>
-        <jgrapht.version>1.1.0</jgrapht.version>
         <maven.min-version>3.0.4</maven.min-version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -101,7 +100,7 @@
             <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
-                <version>${jgrapht.version}</version>
+                <version>1.1.0</version>
             </dependency>
 
             <dependency>

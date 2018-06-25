@@ -6,7 +6,7 @@ import java.util.function.Function;
 import org.aksw.commons.graph.index.core.SetOps;
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
-import org.jgrapht.graph.GraphUnion;
+import org.jgrapht.graph.AsGraphUnion;
 
 import com.google.common.base.MoreObjects;
 
@@ -24,7 +24,7 @@ public abstract class SetOpsJGraphTBase<V, E, G extends Graph<V, E>>
 
     @Override
     public G union(G a, G b) {
-        Graph<V, E> tmp = new GraphUnion<V, E, G>(a, b);
+        Graph<V, E> tmp = new AsGraphUnion<V, E>(a, b);
         G result = createNew();
         Graphs.addGraph(result, tmp);
 

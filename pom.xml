@@ -50,7 +50,7 @@
     </modules>
 
     <properties>
-        <jgrapht.version>1.1.0</jgrapht.version>
+        <jgrapht.version>1.2.0</jgrapht.version>
         <maven.min-version>3.0.4</maven.min-version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -106,7 +106,7 @@
             <dependency>
                 <groupId>org.apache.jena</groupId>
                 <artifactId>jena-arq</artifactId>
-                <version>3.6.0</version>
+                <version>3.7.0</version>
             </dependency>
 
 <!--

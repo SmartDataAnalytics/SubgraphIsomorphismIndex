@@ -3,7 +3,9 @@ package org.aksw.commons.jena.jgrapht;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
@@ -335,4 +337,24 @@ public class PseudoGraphJenaModel
     public String toString() {
         return "PseudoGraphJena [model=" + model + ", predicate=" + confinementProperty + "]";
     }
+
+	@Override
+	public Supplier<RDFNode> getVertexSupplier() {
+		return model::createResource;
+	}
+
+	@Override
+	public Supplier<Statement> getEdgeSupplier() {
+		return null;
+	}
+
+	@Override
+	public RDFNode addVertex() {
+		RDFNode result = Optional.ofNullable(getVertexSupplier())
+				.orElseThrow(UnsupportedOperationException::new)
+				.get();
+			
+		addVertex(result);
+		return result;
+	}
 }

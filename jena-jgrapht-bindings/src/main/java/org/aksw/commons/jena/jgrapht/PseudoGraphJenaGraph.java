@@ -3,11 +3,14 @@ package org.aksw.commons.jena.jgrapht;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphUtil;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.jgrapht.EdgeFactory;
@@ -347,5 +350,26 @@ public class PseudoGraphJenaGraph
             return false;
         return true;
     }
+
+	@Override
+	public Supplier<Node> getVertexSupplier() {
+		// Note: We could add a sanity check wrapper in the unlikely case createBlankNode yields a node that is already in the graph
+		return NodeFactory::createBlankNode;
+	}
+
+	@Override
+	public Supplier<Triple> getEdgeSupplier() {
+		return null;
+	}
+
+	@Override
+	public Node addVertex() {
+		Node result = Optional.ofNullable(getVertexSupplier())
+			.orElseThrow(UnsupportedOperationException::new)
+			.get();
+		
+		addVertex(result);
+		return result;
+	}
 
 }

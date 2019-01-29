@@ -14,10 +14,10 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.StmtIteratorImpl;
-import org.jgrapht.EdgeFactory;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphType;
 import org.jgrapht.graph.DefaultGraphType;
+import org.jgrapht.graph.IntrusiveEdgesSpecifics;
 
 
 /**
@@ -37,8 +37,10 @@ public class PseudoGraphJenaModel
     
     protected Property confinementProperty; // May be null
 
-    protected transient EdgeFactory<RDFNode, Statement> edgeFactory;
+    //protected transient EdgeFactory<RDFNode, Statement> edgeFactory;
 
+    protected EdgeFactoryJenaModel edgeSupplier;
+    protected IntrusiveEdgesSpecifics<RDFNode, Statement> intrusiveEdgesSpecifics;
 
     public PseudoGraphJenaModel(Model model) {
     	this(model, DefaultGraphType.pseudograph());
@@ -62,7 +64,10 @@ public class PseudoGraphJenaModel
         this.graphType = graphType;
         this.confinementProperty = confinementProperty;
         
-        edgeFactory = new EdgeFactoryJenaModel(model, insertProperty);
+        edgeSupplier = new EdgeFactoryJenaModel(model, insertProperty);
+        intrusiveEdgesSpecifics = new IntrusiveEdgesSpecificsJenaModel(model, confinementProperty);
+
+        //edgeFactory = new EdgeFactoryJenaModel(model, insertProperty);
     }
 
 
@@ -81,14 +86,19 @@ public class PseudoGraphJenaModel
         return result;
     }
 
+//    @Override
+//    public EdgeFactory<RDFNode, Statement> getEdgeFactory() {
+//        return edgeSupplier;
+//    }
+
     @Override
-    public EdgeFactory<RDFNode, Statement> getEdgeFactory() {
-        return edgeFactory;
+    public Supplier<Statement> getEdgeSupplier() {
+        return edgeSupplier;
     }
 
     @Override
     public Statement addEdge(RDFNode sourceVertex, RDFNode targetVertex) {
-    	Statement result = edgeFactory.createEdge(sourceVertex, targetVertex);        	
+    	Statement result = edgeSupplier.createEdge(sourceVertex, targetVertex);        	
         model.add(result);
 
         return result;
@@ -343,10 +353,6 @@ public class PseudoGraphJenaModel
 		return model::createResource;
 	}
 
-	@Override
-	public Supplier<Statement> getEdgeSupplier() {
-		return null;
-	}
 
 	@Override
 	public RDFNode addVertex() {

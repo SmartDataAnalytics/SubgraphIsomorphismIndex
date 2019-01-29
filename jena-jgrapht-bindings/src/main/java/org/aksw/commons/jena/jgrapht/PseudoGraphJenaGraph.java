@@ -13,9 +13,9 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.util.iterator.ExtendedIterator;
-import org.jgrapht.EdgeFactory;
 import org.jgrapht.GraphType;
 import org.jgrapht.graph.DefaultGraphType;
+import org.jgrapht.graph.IntrusiveEdgesSpecifics;
 
 
 /**
@@ -45,7 +45,10 @@ public class PseudoGraphJenaGraph
      */
     protected Node confinementPredicate; // May be Node.ANY - should not be null
 
-    protected EdgeFactory<Node, Triple> edgeFactory;
+    //protected EdgeFactory<Node, Triple> edgeFactory;
+    protected EdgeFactoryJenaGraph edgeSupplier;
+    protected IntrusiveEdgesSpecifics<Node, Triple> intrusiveEdgesSpecifics;
+    
 
     public PseudoGraphJenaGraph(Graph graph) {
         this(graph, DefaultGraphType.directedPseudograph());
@@ -78,7 +81,9 @@ public class PseudoGraphJenaGraph
         this.graphType = graphType;
         this.confinementPredicate = confinementPredicate;
 
-        edgeFactory = new EdgeFactoryJenaGraph(insertPredicate);
+        edgeSupplier = new EdgeFactoryJenaGraph(insertPredicate);
+        intrusiveEdgesSpecifics = new IntrusiveEdgesSpecificsJenaGraph(graph, confinementPredicate);
+        //edgeFactory = new EdgeFactoryJenaGraph(insertPredicate);
     }
 
 
@@ -100,14 +105,21 @@ public class PseudoGraphJenaGraph
         return result;
     }
 
+    //@Override
+//    public EdgeFactory<Node, Triple> getEdgeFactory() {
+//        return edgeFactory;
+//    }
+
     @Override
-    public EdgeFactory<Node, Triple> getEdgeFactory() {
-        return edgeFactory;
+    public Supplier<Triple> getEdgeSupplier() {
+    	return edgeSupplier;
     }
 
     @Override
     public Triple addEdge(Node sourceVertex, Node targetVertex) {
-        Triple result = edgeFactory.createEdge(sourceVertex, targetVertex);
+        //Triple result = edgeFactory.createEdge(sourceVertex, targetVertex);
+    	//Triple e = edgeSupplier.get();
+    	Triple result = edgeSupplier.createEdge(sourceVertex, targetVertex);//intrusiveEdgesSpecifics.add(e, sourceVertex, targetVertex)
         graph.add(result);
 
         return result;
@@ -311,7 +323,7 @@ public class PseudoGraphJenaGraph
     @Override
     public String toString() {
         return "PseudoGraphJenaGraph [graph=" + graph + ", confinementPredicate=" + confinementPredicate
-                + ", edgeFactory=" + edgeFactory + "]";
+                + ", edgeFactory=" + edgeSupplier + "]";
     }
 
     @Override
@@ -319,7 +331,7 @@ public class PseudoGraphJenaGraph
         final int prime = 31;
         int result = 1;
         result = prime * result + ((confinementPredicate == null) ? 0 : confinementPredicate.hashCode());
-        result = prime * result + ((edgeFactory == null) ? 0 : edgeFactory.hashCode());
+        result = prime * result + ((edgeSupplier == null) ? 0 : edgeSupplier.hashCode());
         result = prime * result + ((graph == null) ? 0 : graph.hashCode());
         return result;
     }
@@ -338,10 +350,10 @@ public class PseudoGraphJenaGraph
                 return false;
         } else if (!confinementPredicate.equals(other.confinementPredicate))
             return false;
-        if (edgeFactory == null) {
-            if (other.edgeFactory != null)
+        if (edgeSupplier == null) {
+            if (other.edgeSupplier != null)
                 return false;
-        } else if (!edgeFactory.equals(other.edgeFactory))
+        } else if (!edgeSupplier.equals(other.edgeSupplier))
             return false;
         if (graph == null) {
             if (other.graph != null)
@@ -357,10 +369,6 @@ public class PseudoGraphJenaGraph
 		return NodeFactory::createBlankNode;
 	}
 
-	@Override
-	public Supplier<Triple> getEdgeSupplier() {
-		return null;
-	}
 
 	@Override
 	public Node addVertex() {

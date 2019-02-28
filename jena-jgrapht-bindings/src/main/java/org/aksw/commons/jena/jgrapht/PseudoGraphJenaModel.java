@@ -44,11 +44,11 @@ public class PseudoGraphJenaModel
     protected IntrusiveEdgesSpecifics<RDFNode, Statement> intrusiveEdgesSpecifics;
 
     public PseudoGraphJenaModel(Model model) {
-    	this(model, DefaultGraphType.pseudograph());
+    	this(model, DefaultGraphType.directedPseudograph());
     }
 
     public PseudoGraphJenaModel(Model model, Property confinementProperty) {
-    	this(model, DefaultGraphType.pseudograph(), confinementProperty);
+    	this(model, DefaultGraphType.directedPseudograph(), confinementProperty);
     }
 
     public PseudoGraphJenaModel(Model model, GraphType graphType) {

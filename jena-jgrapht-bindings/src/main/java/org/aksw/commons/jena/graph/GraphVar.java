@@ -17,4 +17,10 @@ public interface GraphVar
     default BiMap<Node, Var> getNodeToVar() {
         return getVarToNode().inverse();
     }
+
+//    // Test if a node is mapped to a variable
+//    default boolean isVar(Node outer) {
+//    	BiMap<Var, Node> map = getVarToNode();
+//    	
+//    }
 }

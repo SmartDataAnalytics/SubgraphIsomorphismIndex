@@ -4,7 +4,7 @@
 
     <groupId>org.aksw.commons</groupId>
     <artifactId>subgraph-isomorphism-index-parent</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
 
     <packaging>pom</packaging>
 
@@ -50,6 +50,7 @@
     </modules>
 
     <properties>
+	<jena.version>3.13.1</jena.version>
         <maven.min-version>3.0.4</maven.min-version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -106,7 +107,7 @@
             <dependency>
                 <groupId>org.apache.jena</groupId>
                 <artifactId>jena-arq</artifactId>
-                <version>3.11.0</version>
+                <version>${jena.version}</version>
             </dependency>
 
 <!--
@@ -119,7 +120,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>24.0-jre</version>
+                <version>27.0.1-jre</version>
             </dependency>
 
             <dependency>

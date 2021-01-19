@@ -14,7 +14,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.StmtIteratorImpl;
-import org.jgrapht.EdgeFactory;
+// import org.jgrapht.EdgeFactory;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphType;
 import org.jgrapht.graph.DefaultGraphType;
@@ -87,10 +87,10 @@ public class PseudoGraphJenaModel
         return result;
     }
 
-    @Override
-    public EdgeFactory<RDFNode, Statement> getEdgeFactory() {
-        return edgeSupplier;
-    }
+//    @Override
+//    public EdgeFactory<RDFNode, Statement> getEdgeFactory() {
+//        return edgeSupplier;
+//    }
 
     @Override
     public Supplier<Statement> getEdgeSupplier() {

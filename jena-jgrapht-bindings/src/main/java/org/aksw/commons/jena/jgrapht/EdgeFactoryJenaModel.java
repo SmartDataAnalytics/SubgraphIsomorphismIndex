@@ -6,12 +6,12 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
-import org.jgrapht.EdgeFactory;
+//import org.jgrapht.EdgeFactory;
 
 
 public class EdgeFactoryJenaModel
     implements
-    EdgeFactory<RDFNode, Statement>,
+//    EdgeFactory<RDFNode, Statement>,
 	Supplier<Statement>
 {
     protected Model model;

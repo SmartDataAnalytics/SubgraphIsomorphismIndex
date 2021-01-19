@@ -4,12 +4,12 @@ import java.util.function.Supplier;
 
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
-import org.jgrapht.EdgeFactory;
+//import org.jgrapht.EdgeFactory;
 
 
 public class EdgeFactoryJenaGraph
 	implements
-    EdgeFactory<Node, Triple>,
+//    EdgeFactory<Node, Triple>,
 	Supplier<Triple>
 {
     protected Node predicate;

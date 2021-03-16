@@ -20,6 +20,14 @@ public class LabeledEdgeImpl<V, T>
     protected V target;
     protected T label;
 
+    public LabeledEdgeImpl() {
+    	this(null, null, null);
+    }
+    
+    public LabeledEdgeImpl(T label) {
+    	this(null, null, label);
+    }
+
     public LabeledEdgeImpl(V source, V target, T label) {
         super();
         this.source = source;

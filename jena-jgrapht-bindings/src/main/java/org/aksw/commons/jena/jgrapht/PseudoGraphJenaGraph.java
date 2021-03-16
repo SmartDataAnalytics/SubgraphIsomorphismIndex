@@ -13,7 +13,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.util.iterator.ExtendedIterator;
-import org.jgrapht.EdgeFactory;
+//import org.jgrapht.EdgeFactory;
 import org.jgrapht.GraphType;
 import org.jgrapht.graph.DefaultGraphType;
 import org.jgrapht.graph.IntrusiveEdgesSpecifics;
@@ -106,10 +106,10 @@ public class PseudoGraphJenaGraph
         return result;
     }
 
-    @Override
-    public EdgeFactory<Node, Triple> getEdgeFactory() {
-        return edgeSupplier;
-    }
+//    @Override
+//    public EdgeFactory<Node, Triple> getEdgeFactory() {
+//        return edgeSupplier;
+//    }
 
     @Override
     public Supplier<Triple> getEdgeSupplier() {

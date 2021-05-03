@@ -4,7 +4,7 @@
 
     <groupId>org.aksw.commons</groupId>
     <artifactId>subgraph-isomorphism-index-parent</artifactId>
-    <version>1.4.0-2-SNAPSHOT</version>
+    <version>1.5.1-1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -50,8 +50,8 @@
     </modules>
 
     <properties>
-		<jena.version>3.17.0</jena.version>
-		<jgrapht.version>1.4.0</jgrapht.version>
+		<jena.version>4.0.0</jena.version>
+		<jgrapht.version>1.5.1</jgrapht.version>
         <maven.min-version>3.0.4</maven.min-version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>

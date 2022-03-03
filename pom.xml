@@ -100,7 +100,7 @@
 			<dependency>
 				<groupId>org.aksw.commons</groupId>
 				<artifactId>tagmap-core</artifactId>
-				<version>1.0.5-SNAPSHOT</version>
+				<version>1.0.5</version>
 			</dependency>
 
 			<dependency>
